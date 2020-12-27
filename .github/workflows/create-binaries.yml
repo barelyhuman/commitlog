@@ -4,27 +4,43 @@ on:
   workflow_dispatch:
 
 jobs:
-    pre-release:
-      name: Pre Release
-      runs-on: ubuntu-latest
-      steps:
-        - name: Get current date
-          id: date
-          run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-        - name: Checkout the repository
-          uses: actions/checkout@v2
-        - name: Generate build files
-          uses: thatisuday/go-cross-build@v1
-          with:
-            platforms: 'linux/amd64, linux/arm, linux/arm64, windows/amd64, darwin/amd64'
-            package: ''
-            name: commitlog
-            compress: 'true'
-            dest: dist
-        - uses: marvinpinto/action-automatic-releases@latest
-          with:
-            repo_token: '${{ secrets.GITHUB_TOKEN }}'
-            automatic_release_tag: nightly-${{ steps.date.outputs.date }}
-            prerelease: true
-            title: "Nightly Build ${{ steps.date.outputs.date }}"
-            files: dist/*
+  pre-release:
+    name: Pre Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Generate Change Log
+        id: generate_log
+        run: echo "::set-output name=changelog::$(go run main.go .)"
+      - name: Generate build files
+        uses: thatisuday/go-cross-build@v1
+        with:
+          platforms: "linux/amd64, linux/arm, linux/arm64, windows/amd64, darwin/amd64"
+          package: ""
+          name: commitlog
+          compress: "true"
+          dest: dist
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.generate_log.outputs.changelog }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist
+          asset_name: "*"
