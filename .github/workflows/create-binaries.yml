@@ -15,7 +15,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Generate Change Log
         id: generate_log
-        run: echo "::set-output name=changelog::$(go run main.go .)"
+        run: |
+          export CHANGELOG="$(go run main.go .)"
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+          echo "::set-output name=changelog::$(echo "$CHANGELOG")"
       - name: Generate build files
         uses: thatisuday/go-cross-build@v1
         with:
