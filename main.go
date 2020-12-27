@@ -2,78 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
+	"github.com/barelyhuman/commitlog/logcategory"
+	"github.com/barelyhuman/commitlog/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
-
-// LogsByCategory - Type to hold logs by each's category
-type LogsByCategory struct {
-	CI       []string
-	FIX      []string
-	REFACTOR []string
-	FEATURE  []string
-	DOCS     []string
-	OTHER    []string
-}
-
-// GenerateMarkdown - Generate markdown output for the collected commits
-func (logContainer *LogsByCategory) GenerateMarkdown() string {
-	markDownString := ""
-
-	markDownString += "# Changelog  \n"
-
-	if len(logContainer.CI) > 0 {
-		markDownString += "\n\n## CI Changes  \n"
-
-		for _, item := range logContainer.CI {
-			markDownString += item + "\n"
-		}
-	}
-
-	if len(logContainer.FIX) > 0 {
-		markDownString += "\n\n## Fixes  \n"
-		for _, item := range logContainer.FIX {
-			markDownString += item + "\n"
-		}
-	}
-
-	if len(logContainer.REFACTOR) > 0 {
-		markDownString += "\n\n## Performance Fixes  \n"
-
-		for _, item := range logContainer.REFACTOR {
-			markDownString += item + "\n"
-		}
-	}
-
-	if len(logContainer.FEATURE) > 0 {
-
-		markDownString += "\n\n## Feature Fixes  \n"
-		for _, item := range logContainer.FEATURE {
-			markDownString += item + "\n"
-		}
-	}
-
-	if len(logContainer.DOCS) > 0 {
-
-		markDownString += "\n\n## Doc Updates  \n"
-		for _, item := range logContainer.DOCS {
-			markDownString += item + "\n"
-		}
-	}
-
-	if len(logContainer.OTHER) > 0 {
-
-		markDownString += "\n\n## Other Changes  \n"
-		for _, item := range logContainer.OTHER {
-			markDownString += item + "\n"
-		}
-	}
-
-	return markDownString
-}
 
 func normalizeCommit(commitMessage string) string {
 	var message string
@@ -92,9 +29,16 @@ func main() {
 	ref, _ := r.Head()
 	cIter, _ := r.Log(&git.LogOptions{From: ref.Hash()})
 
-	logContainer := new(LogsByCategory)
+	var commits []*object.Commit
 
 	_ = cIter.ForEach(func(c *object.Commit) error {
+		commits = append(commits, c)
+		return nil
+	})
+
+	logContainer := new(logcategory.LogsByCategory)
+
+	for _, c := range commits {
 		switch {
 		case strings.Contains(c.Message, "ci:"):
 			{
@@ -121,9 +65,27 @@ func main() {
 				logContainer.OTHER = append(logContainer.OTHER, c.Hash.String()+" - "+normalizeCommit(c.Message))
 			}
 		}
-		return nil
-	})
+
+		if isCommitToNearestTag(r, c) {
+			break
+		}
+	}
 
 	fmt.Println(logContainer.GenerateMarkdown())
 
+}
+
+func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
+	latestTag, err := utils.GetLatestTagFromRepository(repo)
+	if err != nil {
+		log.Fatal("Couldn't get latest tag...", err)
+	}
+	if err != nil {
+		log.Fatal("Couldn't access tag...", err)
+	}
+
+	if latestTag != nil {
+		return latestTag.Hash().String() == commit.Hash.String()
+	}
+	return false
 }
