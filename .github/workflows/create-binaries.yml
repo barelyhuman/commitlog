@@ -15,6 +15,8 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Generate Change Log
         id: generate_log
         run: |
