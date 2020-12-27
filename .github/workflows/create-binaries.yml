@@ -25,12 +25,7 @@ jobs:
           | wget -qi -
           tar -xvzf commitlog-linux-amd64.tar.gz
           chmod +x commitlog 
-          export CHANGELOG="$(./commitlog .)"
-          CHANGELOG="${CHANGELOG//'%'/'%25'}"
-          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-          echo "$CHANGELOG"
-          echo "::set-output name=changelog::$(echo "$CHANGELOG")"
+          ./commitlog . > CHANGELOG.txt
       - name: Generate build files
         uses: thatisuday/go-cross-build@v1
         with:
@@ -43,7 +38,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          body: ${{ steps.generate_log.outputs.changelog }}
+          body_path: CHANGELOG.txt
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
