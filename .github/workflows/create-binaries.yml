@@ -29,6 +29,7 @@ jobs:
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+          echo "$CHANGELOG"
           echo "::set-output name=changelog::$(echo "$CHANGELOG")"
       - name: Generate build files
         uses: thatisuday/go-cross-build@v1
