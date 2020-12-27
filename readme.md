@@ -8,6 +8,8 @@ Changelog generator using Commit History
 
 it is usable by manualling installing the go package for now and isn't available as a binary right now, still under heavy development
 
+To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
+
 ```sh
 commitlog path/to/repository
 ```
