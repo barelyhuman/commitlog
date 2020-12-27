@@ -18,7 +18,10 @@ jobs:
       - name: Generate Change Log
         id: generate_log
         run: |
-          export CHANGELOG="$(go run main.go .)"
+          curl -L https://github.com/barelyhuman/commitlog/releases/download/v0.0.2/commitlog-linux-amd64.tar.gz --output commitlog.tar.gz
+          tar -xvzf commitlog.tar.gz
+          chmod +x commitlog 
+          export CHANGELOG="$(./commitlog .)"
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
