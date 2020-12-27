@@ -2,6 +2,8 @@
 
 Changelog generator using Commit History
 
+![Binary Builds](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds/badge.svg)
+
 # UNDER DEV
 
 it is usable by manualling installing the go package for now and isn't available as a binary right now, still under heavy development
