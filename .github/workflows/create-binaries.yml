@@ -18,8 +18,12 @@ jobs:
       - name: Generate Change Log
         id: generate_log
         run: |
-          curl -L https://github.com/barelyhuman/commitlog/releases/download/v0.0.2/commitlog-linux-amd64.tar.gz --output commitlog.tar.gz
-          tar -xvzf commitlog.tar.gz
+          curl -s https://api.github.com/repos/barelyhuman/commitlog/releases/latest \
+          grep browser_download_url \
+          grep linux-amd64 \
+          cut -d '"' -f 4 \
+          wget -qi -
+          tar -xvzf commitlog-linux-amd64.tar.gz
           chmod +x commitlog 
           export CHANGELOG="$(./commitlog .)"
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
