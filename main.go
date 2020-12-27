@@ -37,6 +37,19 @@ func main() {
 	})
 
 	logContainer := new(logcategory.LogsByCategory)
+	latestTag, _, err := utils.GetLatestTagFromRepository(r)
+
+	if err != nil {
+		log.Fatal("Error Getting Tag Pairs", err)
+	}
+
+	tillLatest := false
+
+	if latestTag.Hash().String() == ref.Hash().String() {
+		tillLatest = false
+	} else {
+		tillLatest = true
+	}
 
 	for _, c := range commits {
 		switch {
@@ -66,7 +79,7 @@ func main() {
 			}
 		}
 
-		if isCommitToNearestTag(r, c) {
+		if isCommitToNearestTag(r, c, tillLatest) {
 			break
 		}
 	}
@@ -75,8 +88,9 @@ func main() {
 
 }
 
-func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
-	latestTag, err := utils.GetLatestTagFromRepository(repo)
+func isCommitToNearestTag(repo *git.Repository, commit *object.Commit, tillLatest bool) bool {
+	latestTag, previousTag, err := utils.GetLatestTagFromRepository(repo)
+
 	if err != nil {
 		log.Fatal("Couldn't get latest tag...", err)
 	}
@@ -85,7 +99,12 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 	}
 
 	if latestTag != nil {
-		return latestTag.Hash().String() == commit.Hash.String()
+
+		if tillLatest {
+			return latestTag.Hash().String() == commit.Hash.String()
+		}
+		return previousTag.Hash().String() == commit.Hash.String()
+
 	}
 	return false
 }
