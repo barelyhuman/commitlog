@@ -33,7 +33,6 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 
 - Cannot Specify a commit/tag to consider as the source of log
 - No Tests added so is probably unstable right now
-- Generates a huge markdown output of the whole repository from inception /initial commit
 
 ## Contribution
 
