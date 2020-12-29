@@ -25,16 +25,33 @@ func normalizeCommit(commitMessage string) string {
 
 func main() {
 	path := os.Args[1]
-	r, _ := git.PlainOpen(path)
-	ref, _ := r.Head()
-	cIter, _ := r.Log(&git.LogOptions{From: ref.Hash()})
+	r, err := git.PlainOpen(path)
+	if err != nil {
+		log.Fatal("Error opening Repository: ", err)
+	}
+
+	ref, err := r.Head()
+
+	if err != nil {
+		log.Fatal("Unable to get repository HEAD:", err)
+	}
+
+	cIter, err := r.Log(&git.LogOptions{From: ref.Hash()})
+
+	if err != nil {
+		log.Fatal("Unable to get repository commits:", err)
+	}
 
 	var commits []*object.Commit
 
-	_ = cIter.ForEach(func(c *object.Commit) error {
+	err = cIter.ForEach(func(c *object.Commit) error {
 		commits = append(commits, c)
 		return nil
 	})
+
+	if err != nil {
+		log.Fatal("Error getting commits : ", err)
+	}
 
 	logContainer := new(logcategory.LogsByCategory)
 	latestTag, _, err := utils.GetLatestTagFromRepository(r)
@@ -45,10 +62,12 @@ func main() {
 
 	tillLatest := false
 
-	if latestTag.Hash().String() == ref.Hash().String() {
-		tillLatest = false
-	} else {
-		tillLatest = true
+	if latestTag != nil {
+		if latestTag.Hash().String() == ref.Hash().String() {
+			tillLatest = false
+		} else {
+			tillLatest = true
+		}
 	}
 
 	for _, c := range commits {
@@ -64,6 +83,10 @@ func main() {
 		case strings.Contains(c.Message, "refactor:"):
 			{
 				logContainer.REFACTOR = append(logContainer.REFACTOR, c.Hash.String()+" - "+normalizeCommit(c.Message))
+			}
+		case strings.Contains(c.Message, "feat:"):
+			{
+				logContainer.FEATURE = append(logContainer.FEATURE, c.Hash.String()+" - "+normalizeCommit(c.Message))
 			}
 		case strings.Contains(c.Message, "feature:"):
 			{
@@ -99,7 +122,6 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit, tillLates
 	}
 
 	if latestTag != nil {
-
 		if tillLatest {
 			return latestTag.Hash().String() == commit.Hash.String()
 		}
