@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package utils
+package repo
 
 import (
 	"github.com/go-git/go-git/v5"
