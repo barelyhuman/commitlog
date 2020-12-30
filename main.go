@@ -56,7 +56,7 @@ func Main() error {
 		return fmt.Errorf("getting commits: %w", err)
 	}
 
-	logContainer := new(logcategory.LogsByCategory)
+	logContainer := logcategory.NewLogsByCategory()
 	latestTag, _, err := repo.GetLatestTagFromRepository(r)
 	if err != nil {
 		return fmt.Errorf("getting tag pairs: %w", err)
@@ -66,21 +66,13 @@ func Main() error {
 
 	for _, c := range commits {
 		s := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
-		case "ci":
-			logContainer.CI = append(logContainer.CI, s)
-		case "fix":
-			logContainer.Fix = append(logContainer.Fix, s)
-		case "refactor":
-			logContainer.Refactor = append(logContainer.Refactor, s)
+		switch k := strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0]; k {
+		case "ci", "fix", "refactor", "feature", "docs":
+			logContainer.Add(k, s)
 		case "feat":
-			logContainer.Feature = append(logContainer.Feature, s)
-		case "feature":
-			logContainer.Feature = append(logContainer.Feature, s)
-		case "docs":
-			logContainer.Docs = append(logContainer.Docs, s)
+			logContainer.Add("feature", s)
 		default:
-			logContainer.Other = append(logContainer.Other, s)
+			logContainer.Add("", s)
 		}
 
 		if isCommitToNearestTag(r, c, tillLatest) {
