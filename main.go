@@ -1,18 +1,58 @@
-// SPDX-License-Identifier: MIT
-
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/barelyhuman/commitlog/logcategory"
-	"github.com/barelyhuman/commitlog/utils"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/object"
 )
+
+func main() {
+
+	var path string
+	// Read user input
+	flag.StringVar(&path, "path", "", "A filepath to a folder containing a github repository")
+	// Parse Flags
+	flag.Parse()
+
+	// Make sure user has inserted the needed flags
+	if path == "" {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	repo, err := Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	commits, err := repo.GetCommits()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logContainer := new(LogsByCategory)
+
+	// we no longer need to fetch latestTag here to compare tillLatest.
+
+	// itterate all commits and add them to the log based on hash and Message
+	for _, c := range commits {
+
+		logContainer.AddCommitLog(c.Hash.String(), c.Message)
+
+		nearestTag, err := repo.IsCommitNearest(c)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if nearestTag {
+			break
+		}
+	}
+
+	fmt.Println(logContainer.GenerateMarkdown())
+
+}
 
 func normalizeCommit(commitMessage string) string {
 	var message string
@@ -23,109 +63,4 @@ func normalizeCommit(commitMessage string) string {
 		}
 	}
 	return strings.TrimSuffix(message, "\n")
-}
-
-func main() {
-	path := os.Args[1]
-	r, err := git.PlainOpen(path)
-	if err != nil {
-		log.Fatal("Error opening Repository: ", err)
-	}
-
-	ref, err := r.Head()
-
-	if err != nil {
-		log.Fatal("Unable to get repository HEAD:", err)
-	}
-
-	cIter, err := r.Log(&git.LogOptions{From: ref.Hash()})
-
-	if err != nil {
-		log.Fatal("Unable to get repository commits:", err)
-	}
-
-	var commits []*object.Commit
-
-	err = cIter.ForEach(func(c *object.Commit) error {
-		commits = append(commits, c)
-		return nil
-	})
-
-	if err != nil {
-		log.Fatal("Error getting commits : ", err)
-	}
-
-	logContainer := new(logcategory.LogsByCategory)
-	latestTag, _, err := utils.GetLatestTagFromRepository(r)
-
-	if err != nil {
-		log.Fatal("Error Getting Tag Pairs", err)
-	}
-
-	tillLatest := false
-
-	if latestTag != nil {
-		if latestTag.Hash().String() == ref.Hash().String() {
-			tillLatest = false
-		} else {
-			tillLatest = true
-		}
-	}
-
-	for _, c := range commits {
-		switch {
-		case strings.Contains(c.Message, "ci:"):
-			{
-				logContainer.CI = append(logContainer.CI, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "fix:"):
-			{
-				logContainer.FIX = append(logContainer.FIX, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "refactor:"):
-			{
-				logContainer.REFACTOR = append(logContainer.REFACTOR, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "feat:"):
-			{
-				logContainer.FEATURE = append(logContainer.FEATURE, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "feature:"):
-			{
-				logContainer.FEATURE = append(logContainer.FEATURE, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "docs:"):
-			{
-				logContainer.DOCS = append(logContainer.DOCS, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		default:
-			{
-				logContainer.OTHER = append(logContainer.OTHER, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		}
-
-		if isCommitToNearestTag(r, c, tillLatest) {
-			break
-		}
-	}
-
-	fmt.Println(logContainer.GenerateMarkdown())
-
-}
-
-func isCommitToNearestTag(repo *git.Repository, commit *object.Commit, tillLatest bool) bool {
-	latestTag, previousTag, err := utils.GetLatestTagFromRepository(repo)
-
-	if err != nil {
-		log.Fatal("Couldn't get latest tag...", err)
-	}
-
-	if latestTag != nil {
-		if tillLatest {
-			return latestTag.Hash().String() == commit.Hash.String()
-		}
-		return previousTag.Hash().String() == commit.Hash.String()
-
-	}
-	return false
 }
