@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package logcategory
 
 // LogsByCategory - Type to hold logs by each's category
