@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -25,82 +26,61 @@ func normalizeCommit(commitMessage string) string {
 }
 
 func main() {
+	if err := Main(); err != nil {
+		log.Fatalf("%+v", err)
+	}
+}
+
+func Main() error {
 	path := os.Args[1]
 	r, err := git.PlainOpen(path)
 	if err != nil {
-		log.Fatal("Error opening Repository: ", err)
+		return fmt.Errorf("opening repository: %w", err)
 	}
 
 	ref, err := r.Head()
-
 	if err != nil {
-		log.Fatal("Unable to get repository HEAD:", err)
+		return fmt.Errorf("get repository HEAD: %w", err)
 	}
 
 	cIter, err := r.Log(&git.LogOptions{From: ref.Hash()})
-
 	if err != nil {
-		log.Fatal("Unable to get repository commits:", err)
+		return fmt.Errorf("get repository commits: %w", err)
 	}
 
 	var commits []*object.Commit
-
-	err = cIter.ForEach(func(c *object.Commit) error {
+	if err = cIter.ForEach(func(c *object.Commit) error {
 		commits = append(commits, c)
 		return nil
-	})
-
-	if err != nil {
-		log.Fatal("Error getting commits : ", err)
+	}); err != nil {
+		return fmt.Errorf("getting commits: %w", err)
 	}
 
 	logContainer := new(logcategory.LogsByCategory)
 	latestTag, _, err := repo.GetLatestTagFromRepository(r)
-
 	if err != nil {
-		log.Fatal("Error Getting Tag Pairs", err)
+		return fmt.Errorf("getting tag pairs: %w", err)
 	}
 
-	tillLatest := false
-
-	if latestTag != nil {
-		if latestTag.Hash().String() == ref.Hash().String() {
-			tillLatest = false
-		} else {
-			tillLatest = true
-		}
-	}
+	tillLatest := latestTag != nil && latestTag.Hash().String() != ref.Hash().String()
 
 	for _, c := range commits {
-		switch {
-		case strings.Contains(c.Message, "ci:"):
-			{
-				logContainer.CI = append(logContainer.CI, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "fix:"):
-			{
-				logContainer.Fix = append(logContainer.Fix, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "refactor:"):
-			{
-				logContainer.Refactor = append(logContainer.Refactor, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "feat:"):
-			{
-				logContainer.Feature = append(logContainer.Feature, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "feature:"):
-			{
-				logContainer.Feature = append(logContainer.Feature, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
-		case strings.Contains(c.Message, "docs:"):
-			{
-				logContainer.Docs = append(logContainer.Docs, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
+		s := c.Hash.String() + " - " + normalizeCommit(c.Message)
+		switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
+		case "ci":
+			logContainer.CI = append(logContainer.CI, s)
+		case "fix":
+			logContainer.Fix = append(logContainer.Fix, s)
+		case "refactor":
+			logContainer.Refactor = append(logContainer.Refactor, s)
+		case "feat":
+			logContainer.Feature = append(logContainer.Feature, s)
+		case "feature":
+			logContainer.Feature = append(logContainer.Feature, s)
+		case "docs":
+			logContainer.Docs = append(logContainer.Docs, s)
 		default:
-			{
-				logContainer.Other = append(logContainer.Other, c.Hash.String()+" - "+normalizeCommit(c.Message))
-			}
+			logContainer.Other = append(logContainer.Other, s)
 		}
 
 		if isCommitToNearestTag(r, c, tillLatest) {
@@ -108,7 +88,7 @@ func main() {
 		}
 	}
 
-	logcategory.WriteMarkdown(os.Stdout, logContainer)
+	return logcategory.WriteMarkdown(os.Stdout, logContainer)
 }
 
 func isCommitToNearestTag(repository *git.Repository, commit *object.Commit, tillLatest bool) bool {
