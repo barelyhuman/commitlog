@@ -4,61 +4,66 @@ package logcategory
 
 import (
 	"io"
+	"strings"
 )
 
 // LogsByCategory - Type to hold logs by each's category
-type LogsByCategory struct {
-	CI       []string
-	Fix      []string
-	Refactor []string
-	Feature  []string
-	Docs     []string
-	Other    []string
+type LogsByCategory map[string][]string
+
+func NewLogsByCategory() LogsByCategory {
+	return make(LogsByCategory, len(Categories))
+}
+func (logs LogsByCategory) Add(category, message string) {
+	k := strings.ToLower(category)
+	logs[k] = append(logs[k], message)
+}
+
+// Categories is the Poor Man's Ordered Map of category names and titles.
+var Categories = [][2]string{
+	{"ci", "CI Changes"},
+	{"fix", "Fixes"},
+	{"refactor", "Performance Fixes"},
+	{"feature", "Feature fixes"},
+	{"docs", "Doc Updates"},
+	{"", "Other changes"},
 }
 
 // WriteMarkdown - Generate markdown output for the collected commits
-func WriteMarkdown(w io.Writer, logs *LogsByCategory) error {
+func WriteMarkdown(w io.Writer, logs LogsByCategory) error {
 	ew := &errWriter{w: w}
 	ew.WriteString("# Changelog  \n")
 
-	if len(logs.CI) != 0 {
-		ew.WriteString("\n\n## CI Changes  \n")
-		for _, item := range logs.CI {
-			ew.WriteString(item + "\n")
+	seen := make(map[string]struct{}, len(Categories))
+	var token struct{}
+	var otherPrinted bool
+	for _, kv := range Categories {
+		vv := logs[kv[0]]
+		if len(vv) != 0 {
+			seen[kv[0]] = token
+			ew.WriteString("\n\n## " + kv[1] + "\n")
+			for _, item := range vv {
+				ew.WriteString(item + "\n")
+			}
+			if kv[0] == "" {
+				otherPrinted = true
+			}
 		}
 	}
 
-	if len(logs.Fix) != 0 {
-		ew.WriteString("\n\n## Fixes  \n")
-		for _, item := range logs.Fix {
-			ew.WriteString(item + "\n")
+	for k, vv := range logs {
+		if _, ok := seen[k]; ok {
+			continue
 		}
-	}
-
-	if len(logs.Refactor) != 0 {
-		ew.WriteString("\n\n## Performance Fixes  \n")
-		for _, item := range logs.Refactor {
-			ew.WriteString(item + "\n")
+		if !otherPrinted {
+			for _, kv := range Categories {
+				if kv[0] == "" {
+					ew.WriteString("\n\n## " + kv[1] + "\n")
+					otherPrinted = true
+					break
+				}
+			}
 		}
-	}
-
-	if len(logs.Feature) != 0 {
-		ew.WriteString("\n\n## Feature Fixes  \n")
-		for _, item := range logs.Feature {
-			ew.WriteString(item + "\n")
-		}
-	}
-
-	if len(logs.Docs) != 0 {
-		ew.WriteString("\n\n## Doc Updates  \n")
-		for _, item := range logs.Docs {
-			ew.WriteString(item + "\n")
-		}
-	}
-
-	if len(logs.Other) != 0 {
-		ew.WriteString("\n\n## Other Changes  \n")
-		for _, item := range logs.Other {
+		for _, item := range vv {
 			ew.WriteString(item + "\n")
 		}
 	}
