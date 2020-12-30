@@ -75,7 +75,9 @@ func Main() error {
 			logContainer.Add("", s)
 		}
 
-		if isCommitToNearestTag(r, c, tillLatest) {
+		if nearest, err := isCommitToNearestTag(r, c, tillLatest); err != nil {
+			return err
+		} else if nearest {
 			break
 		}
 	}
@@ -83,19 +85,17 @@ func Main() error {
 	return logcategory.WriteMarkdown(os.Stdout, logContainer)
 }
 
-func isCommitToNearestTag(repository *git.Repository, commit *object.Commit, tillLatest bool) bool {
+func isCommitToNearestTag(repository *git.Repository, commit *object.Commit, tillLatest bool) (bool, error) {
 	latestTag, previousTag, err := repo.GetLatestTagFromRepository(repository)
-
 	if err != nil {
-		log.Fatal("Couldn't get latest tag...", err)
+		return false, fmt.Errorf("get latest tag: %w", err)
 	}
 
-	if latestTag != nil {
-		if tillLatest {
-			return latestTag.Hash().String() == commit.Hash.String()
-		}
-		return previousTag.Hash().String() == commit.Hash.String()
-
+	if latestTag == nil {
+		return false, nil
 	}
-	return false
+	if tillLatest {
+		return latestTag.Hash().String() == commit.Hash.String(), nil
+	}
+	return previousTag.Hash().String() == commit.Hash.String(), nil
 }
