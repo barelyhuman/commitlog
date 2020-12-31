@@ -1,6 +1,8 @@
+You are free to raise PR's for any kind of improvements and or feature additions, they'll be added to the repository accordingly, you can also fork up your own version as the repo will remain MIT licensed
+
 ## Dev Guidelines
 - Fork the Repo
-- Make your changes 
+- Make your changes (use `git pull --rebase` when working with others to avoid creating un-needed merge commits )
 - Raise a PR 
 - Your changes will then be reviewed and merged into a test pr-#id-rebase branch for testing 
 and then merged into `main` if everything goes through

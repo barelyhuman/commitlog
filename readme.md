@@ -6,9 +6,21 @@ Changelog generator using Commit History
 
 # UNDER DEV
 
-it is usable by manualling installing the go package for now and isn't available as a binary right now, still under heavy development
+You can use the exisiting binaries from the releases page or install using `go get` though it is still under heavy development and will not be getting any test coverage until I'm done with most of the mvp functionality.
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
+
+## Usage 
+
+The usage is pretty simple, this cli tool assumes that you use [commitlint standards](https://github.com/conventional-changelog/commitlint#what-is-commitlint) while writing your commits, if not it's okay everything will be classified under `Other Changes` instead of being grouped according to type of commit. 
+
+**Simple Overview**
+`ci: <message>` - for ci/cd changes 
+`feat|feature: <message>` - for feature changes
+`docs: <message>` - for documents or comment updations in code
+`refactor: <message>` - performance / code clean up changes or total BLOC changes
+`fix: <message>` - for fixes (self-explanatory)
+
 
 ```sh
 commitlog path/to/repository
@@ -39,4 +51,4 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 
 ## Contribution
 
-You are free to raise PR's for any kind of improvements and or feature additions, they'll be added to the repository accordingly, you can also fork up your own version
+[Contribution Guidelines](CONTRIBUTING.md)
