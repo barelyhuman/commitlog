@@ -14,19 +14,19 @@ To see an example of this in action, you can check the actions file for this rep
 
 The usage is pretty simple, this cli tool assumes that you use [commitlint standards](https://github.com/conventional-changelog/commitlint#what-is-commitlint) while writing your commits, if not it's okay everything will be classified under `Other Changes` instead of being grouped according to type of commit. 
 
-**Simple Overview**
-`ci: <message>` - for ci/cd changes 
-`feat|feature: <message>` - for feature changes
-`docs: <message>` - for documents or comment updations in code
-`refactor: <message>` - performance / code clean up changes or total BLOC changes
-`fix: <message>` - for fixes (self-explanatory)
+**Simple Overview**  
+`ci: <message>` - for ci/cd changes   
+`feat|feature: <message>` - for feature changes  
+`docs: <message>` - for documents or comment updations in code  
+`refactor: <message>` - performance / code clean up changes or total BLOC changes  
+`fix: <message>` - for fixes (self-explanatory)  
 
+ 
+### Example Output (from this exact repository)
 
 ```sh
-commitlog path/to/repository
+> commitlog path/to/repository
 ```
-
-### Example Output (from this exact repository)
 
 ```markdown
 # Changelog
