@@ -1,8 +1,8 @@
-name: Binary Builds
+name: Binary Builds Pre-Releases
 
 on:
   push:
-    tags-ignore:
+    tags:
       - 'v*-dev.*'
 
 jobs:
@@ -40,6 +40,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          prerelease: true
           body_path: CHANGELOG.txt
           files: dist/*
         env:
