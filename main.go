@@ -29,6 +29,7 @@ func main() {
 
 	commits, err := repo.GetCommits()
 	if err != nil {
+
 		log.Fatal(err)
 	}
 
@@ -49,6 +50,7 @@ func main() {
 			break
 		}
 	}
+	fmt.Println(logContainer.ToMarkdown())
 
 	fmt.Println(logContainer.GenerateMarkdown())
 

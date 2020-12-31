@@ -34,6 +34,9 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 - Cannot Specify a commit/tag to consider as the source of log
 - No Tests added so is probably unstable right now
 
+## Note 
+ The current code base is a prototypal solution and while usable will be heavily refactored to follow best practices, if you'd like to take help of a better codebase if you are creating your own fork then you can take a refactored codebase from [https://github.com/percybolmer/commitlog](https://github.com/percybolmer/commitlog)
+
 ## Contribution
 
 You are free to raise PR's for any kind of improvements and or feature additions, they'll be added to the repository accordingly, you can also fork up your own version
