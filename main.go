@@ -1,89 +1,68 @@
-// SPDX-License-Identifier: MIT
-
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/object"
 )
-
-// ErrMessage - simple interface around error with a custom message
-type ErrMessage struct {
-	message string
-	err     error
-}
 
 func main() {
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage:\n > commitlog path/to/repo")
+	var path string
+	// Read user input
+	flag.StringVar(&path, "path", "", "A filepath to a folder containing a github repository")
+	// Parse Flags
+	flag.Parse()
+
+	// Make sure user has inserted the needed flags
+	if path == "" {
+		flag.Usage()
 		os.Exit(0)
 	}
 
-	path := os.Args[1]
-
-	err := CommitLog(path)
-
-	if err.err != nil {
-		log.Fatal(err.message, err.err)
-	}
-}
-
-// CommitLog - Generate commit log
-func CommitLog(path string) ErrMessage {
-	currentRepository := openRepository(path)
-
-	baseCommitReference, err := currentRepository.Head()
-
+	repo, err := Open(path)
 	if err != nil {
-		return ErrMessage{"Unable to get repository HEAD:", err}
+		log.Fatal(err)
 	}
 
-	cIter, err := currentRepository.Log(&git.LogOptions{From: baseCommitReference.Hash()})
-
+	commits, err := repo.GetCommits()
 	if err != nil {
-		return ErrMessage{"Unable to get repository commits:", err}
+
+		log.Fatal(err)
 	}
 
-	var commits []*object.Commit
+	logContainer := new(LogsByCategory)
 
-	err = cIter.ForEach(func(c *object.Commit) error {
-		commits = append(commits, c)
-		return nil
-	})
+	// we no longer need to fetch latestTag here to compare tillLatest.
 
-	if err != nil {
-		return ErrMessage{"Error getting commits : ", err}
-	}
-
-	logContainer := logsByCategory{}
-
+	// itterate all commits and add them to the log based on hash and Message
 	for _, c := range commits {
-		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
-		case "ci":
-			logContainer.CI = append(logContainer.CI, normalizedHash)
-		case "fix":
-			logContainer.FIX = append(logContainer.FIX, normalizedHash)
-		case "refactor":
-			logContainer.REFACTOR = append(logContainer.REFACTOR, normalizedHash)
-		case "feat", "feature":
-			logContainer.FEATURE = append(logContainer.FEATURE, normalizedHash)
-		case "docs":
-			logContainer.DOCS = append(logContainer.DOCS, normalizedHash)
-		default:
-			logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
+
+		logContainer.AddCommitLog(c.Hash.String(), c.Message)
+
+		nearestTag, err := repo.IsCommitNearest(c)
+		if err != nil {
+			log.Fatal(err)
 		}
-		if isCommitToNearestTag(currentRepository, c) {
+		if nearestTag {
 			break
 		}
 	}
 	fmt.Println(logContainer.ToMarkdown())
 
-	return ErrMessage{}
+	fmt.Println(logContainer.GenerateMarkdown())
+
+}
+
+func normalizeCommit(commitMessage string) string {
+	var message string
+	for i, msg := range strings.Split(commitMessage, "\n") {
+		if i == 0 {
+			message = msg
+			break
+		}
+	}
+	return strings.TrimSuffix(message, "\n")
 }
