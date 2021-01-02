@@ -76,6 +76,10 @@ func CommitLog(path string) ErrMessage {
 			logContainer.FEATURE = append(logContainer.FEATURE, normalizedHash)
 		case "docs":
 			logContainer.DOCS = append(logContainer.DOCS, normalizedHash)
+		case "test":
+			logContainer.TEST = append(logContainer.TEST, normalizedHash)
+		case "chore":
+			logContainer.CHORE = append(logContainer.CHORE, normalizedHash)
 		default:
 			logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
 		}

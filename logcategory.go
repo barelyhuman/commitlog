@@ -18,6 +18,8 @@ type logsByCategory struct {
 	REFACTOR logContainer
 	FEATURE  logContainer
 	DOCS     logContainer
+	CHORE    logContainer
+	TEST     logContainer
 	OTHER    logContainer
 }
 
@@ -41,6 +43,8 @@ func (logs *logsByCategory) ToMarkdown() string {
 	logs.REFACTOR.printLog(&markdownString, "Performance Fixes")
 	logs.CI.printLog(&markdownString, "CI Changes")
 	logs.DOCS.printLog(&markdownString, "Doc Updates")
+	logs.CHORE.printLog(&markdownString, "Chores")
+	logs.TEST.printLog(&markdownString, "Tests")
 	logs.OTHER.printLog(&markdownString, "Other Changes")
 
 	return markdownString.String()
