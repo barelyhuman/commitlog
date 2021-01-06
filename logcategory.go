@@ -39,10 +39,11 @@ func (logs *logsByCategory) ToMarkdown() string {
 
 	markdownString.WriteString("# Changelog \n")
 
-	logs.FEATURE.printLog(&markdownString, "Feature Fixes")
-	logs.REFACTOR.printLog(&markdownString, "Performance Fixes")
-	logs.CI.printLog(&markdownString, "CI Changes")
-	logs.DOCS.printLog(&markdownString, "Doc Updates")
+	logs.FEATURE.printLog(&markdownString, "Features")
+	logs.FIX.printLog(&markdownString, "Fixes")
+	logs.REFACTOR.printLog(&markdownString, "Performance")
+	logs.CI.printLog(&markdownString, "CI")
+	logs.DOCS.printLog(&markdownString, "Docs")
 	logs.CHORE.printLog(&markdownString, "Chores")
 	logs.TEST.printLog(&markdownString, "Tests")
 	logs.OTHER.printLog(&markdownString, "Other Changes")
