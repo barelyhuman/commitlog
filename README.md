@@ -10,6 +10,38 @@ You can use the exisiting binaries from the releases page or install using `go g
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
 
+## Binaries 
+Binaries are available on the Github [releases](https://github.com/barelyhuman/commitlog/releases)
+
+## Build 
+This step is for people who want to use the latest version from the repositories which hasn't been added to releases as a binary yet and for people viewing this on sourcehut , as the binaries aren't uploaded to sourcehut.
+
+- Make sure you have go installed on your system , minimum version `1.15`
+- You can either clone the whole repo from sourcehut / github or downlad a tar.gz from sourcehut / github 
+
+### With Clone 
+
+```sh 
+git clone https://git.sr.ht/~reaper/commitlog
+# or 
+git clone https://github.com/barelyhuman/commitlog
+
+cd commitlog 
+go build 
+```
+
+### With Tarballs 
+```sh
+tar -xvzf commitlog-<hash>.tar.gz
+cd commitlog 
+go build 
+```
+
+```sh
+# to install it to go's bin folder and use the commitlog command during dev or as a perm install
+go install 
+```
+
 ## Usage 
 
 The usage is pretty simple, this cli tool assumes that you use [commitlint standards](https://github.com/conventional-changelog/commitlint#what-is-commitlint) while writing your commits, if not it's okay everything will be classified under `Other Changes` instead of being grouped according to type of commit. 
