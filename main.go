@@ -3,9 +3,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -19,15 +19,15 @@ type ErrMessage struct {
 }
 
 func main() {
+	var repoPath = flag.String("p", ".", "path to the repository, points to the current working directory by default")
+	var startCommit = flag.String("s", "", "commit hash string start collecting commit messages from")
+	var endCommit = flag.String("e", "", "commit hash string to stop collecting commit message at")
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage:\n > commitlog path/to/repo")
-		os.Exit(0)
-	}
+	flag.Parse()
 
-	path := os.Args[1]
+	path := repoPath
 
-	err := CommitLog(path)
+	err := CommitLog(*path, *startCommit, *endCommit)
 
 	if err.err != nil {
 		log.Fatal(err.message, err.err)
@@ -35,16 +35,30 @@ func main() {
 }
 
 // CommitLog - Generate commit log
-func CommitLog(path string) ErrMessage {
+func CommitLog(path string, startCommitString string, endCommitString string) ErrMessage {
 	currentRepository := openRepository(path)
 
 	baseCommitReference, err := currentRepository.Head()
+	var startHash, endHash *object.Commit
+	var cIter object.CommitIter
 
 	if err != nil {
 		return ErrMessage{"Unable to get repository HEAD:", err}
 	}
 
-	cIter, err := currentRepository.Log(&git.LogOptions{From: baseCommitReference.Hash()})
+	if startCommitString != "" {
+		startHash = GetCommitFromString(startCommitString, currentRepository)
+	}
+
+	if endCommitString != "" {
+		endHash = GetCommitFromString(endCommitString, currentRepository)
+	}
+
+	if startHash != nil {
+		cIter, err = currentRepository.Log(&git.LogOptions{From: startHash.Hash})
+	} else {
+		cIter, err = currentRepository.Log(&git.LogOptions{From: baseCommitReference.Hash()})
+	}
 
 	if err != nil {
 		return ErrMessage{"Unable to get repository commits:", err}
@@ -83,7 +97,10 @@ func CommitLog(path string) ErrMessage {
 		default:
 			logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
 		}
-		if isCommitToNearestTag(currentRepository, c) {
+
+		if endHash == nil && isCommitToNearestTag(currentRepository, c) {
+			break
+		} else if endHash != nil && c.Hash == endHash.Hash {
 			break
 		}
 	}
