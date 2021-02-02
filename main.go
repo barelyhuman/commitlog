@@ -22,12 +22,13 @@ func main() {
 	var repoPath = flag.String("p", ".", "path to the repository, points to the current working directory by default")
 	var startCommit = flag.String("s", "", "commit hash string start collecting commit messages from")
 	var endCommit = flag.String("e", "", "commit hash string to stop collecting commit message at")
+	var inclusionFlags = flag.String("i", "", "commit types to be includes, defaults to CI FIX REFACTOR FEATURE DOCS CHORE TEST OTHER")
 
 	flag.Parse()
 
 	path := repoPath
 
-	err := CommitLog(*path, *startCommit, *endCommit)
+	err := CommitLog(*path, *startCommit, *endCommit, *inclusionFlags)
 
 	if err.err != nil {
 		log.Fatal(err.message, err.err)
@@ -35,9 +36,8 @@ func main() {
 }
 
 // CommitLog - Generate commit log
-func CommitLog(path string, startCommitString string, endCommitString string) ErrMessage {
+func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string) ErrMessage {
 	currentRepository := openRepository(path)
-
 	baseCommitReference, err := currentRepository.Head()
 	var startHash, endHash *object.Commit
 	var cIter object.CommitIter
