@@ -4,10 +4,6 @@ Changelog generator using Commit History
 
 ![Binary Builds](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds/badge.svg)
 
-# UNDER DEV
-
-You can use the exisiting binaries from the releases page or install using `go get` though it is still under heavy development and will not be getting any test coverage until I'm done with most of the mvp functionality.
-
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
 
 ## Binaries 
