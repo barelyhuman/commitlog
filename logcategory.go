@@ -24,9 +24,11 @@ type logsByCategory struct {
 }
 
 // printLog - loops through the collected logs to write them to string builder
-func (logs logContainer) printLog(out *strings.Builder, title string) {
+func (logs logContainer) printLog(out *strings.Builder, title string, skipped bool) {
 	if len(logs) > 0 {
-		out.WriteString(fmt.Sprintf("\n\n## %s  \n", title))
+		if !skipped {
+			out.WriteString(fmt.Sprintf("\n\n## %s  \n", title))
+		}
 		for _, item := range logs {
 			out.WriteString(item + "\n")
 		}
@@ -34,19 +36,23 @@ func (logs logContainer) printLog(out *strings.Builder, title string) {
 }
 
 // ToMarkdown - Generate markdown output for the collected commits
-func (logs *logsByCategory) ToMarkdown() string {
+func (logs *logsByCategory) ToMarkdown(skipped bool) string {
 	var markdownString strings.Builder
 
 	markdownString.WriteString("# Changelog \n")
 
-	logs.FEATURE.printLog(&markdownString, "Features")
-	logs.FIX.printLog(&markdownString, "Fixes")
-	logs.REFACTOR.printLog(&markdownString, "Performance")
-	logs.CI.printLog(&markdownString, "CI")
-	logs.DOCS.printLog(&markdownString, "Docs")
-	logs.CHORE.printLog(&markdownString, "Chores")
-	logs.TEST.printLog(&markdownString, "Tests")
-	logs.OTHER.printLog(&markdownString, "Other Changes")
+	if !skipped {
+		logs.FEATURE.printLog(&markdownString, "Features", skipped)
+		logs.FIX.printLog(&markdownString, "Fixes", skipped)
+		logs.REFACTOR.printLog(&markdownString, "Performance", skipped)
+		logs.CI.printLog(&markdownString, "CI", skipped)
+		logs.DOCS.printLog(&markdownString, "Docs", skipped)
+		logs.CHORE.printLog(&markdownString, "Chores", skipped)
+		logs.TEST.printLog(&markdownString, "Tests", skipped)
+		logs.OTHER.printLog(&markdownString, "Other Changes", skipped)
+	} else {
+		logs.OTHER.printLog(&markdownString, "Other Changes", skipped)
+	}
 
 	return markdownString.String()
 }

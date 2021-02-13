@@ -23,12 +23,13 @@ func main() {
 	var startCommit = flag.String("s", "", "commit hash string start collecting commit messages from")
 	var endCommit = flag.String("e", "", "commit hash string to stop collecting commit message at")
 	var inclusionFlags = flag.String("i", "", "commit types to be includes, defaults to CI FIX REFACTOR FEATURE DOCS CHORE TEST OTHER")
+	var skipClassification = flag.Bool("skip", false, "if true will skip trying to classify and just give a list of changes")
 
 	flag.Parse()
 
 	path := repoPath
 
-	err := CommitLog(*path, *startCommit, *endCommit, *inclusionFlags)
+	err := CommitLog(*path, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
 
 	if err.err != nil {
 		log.Fatal(err.message, err.err)
@@ -36,7 +37,7 @@ func main() {
 }
 
 // CommitLog - Generate commit log
-func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string) ErrMessage {
+func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string, skipClassification bool) ErrMessage {
 	currentRepository := openRepository(path)
 	baseCommitReference, err := currentRepository.Head()
 	var startHash, endHash *object.Commit
@@ -79,22 +80,26 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 
 	for _, c := range commits {
 		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
-		case "ci":
-			logContainer.CI = append(logContainer.CI, normalizedHash)
-		case "fix":
-			logContainer.FIX = append(logContainer.FIX, normalizedHash)
-		case "refactor":
-			logContainer.REFACTOR = append(logContainer.REFACTOR, normalizedHash)
-		case "feat", "feature":
-			logContainer.FEATURE = append(logContainer.FEATURE, normalizedHash)
-		case "docs":
-			logContainer.DOCS = append(logContainer.DOCS, normalizedHash)
-		case "test":
-			logContainer.TEST = append(logContainer.TEST, normalizedHash)
-		case "chore":
-			logContainer.CHORE = append(logContainer.CHORE, normalizedHash)
-		default:
+		if !skipClassification {
+			switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
+			case "ci":
+				logContainer.CI = append(logContainer.CI, normalizedHash)
+			case "fix":
+				logContainer.FIX = append(logContainer.FIX, normalizedHash)
+			case "refactor":
+				logContainer.REFACTOR = append(logContainer.REFACTOR, normalizedHash)
+			case "feat", "feature":
+				logContainer.FEATURE = append(logContainer.FEATURE, normalizedHash)
+			case "docs":
+				logContainer.DOCS = append(logContainer.DOCS, normalizedHash)
+			case "test":
+				logContainer.TEST = append(logContainer.TEST, normalizedHash)
+			case "chore":
+				logContainer.CHORE = append(logContainer.CHORE, normalizedHash)
+			default:
+				logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
+			}
+		} else {
 			logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
 		}
 
@@ -104,7 +109,7 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 			break
 		}
 	}
-	fmt.Println(logContainer.ToMarkdown())
+	fmt.Println(logContainer.ToMarkdown(skipClassification))
 
 	return ErrMessage{}
 }
