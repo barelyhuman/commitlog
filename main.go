@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -18,11 +19,13 @@ type ErrMessage struct {
 	err     error
 }
 
+type commitTypeInclusions [][]byte
+
 func main() {
 	var repoPath = flag.String("p", ".", "path to the repository, points to the current working directory by default")
 	var startCommit = flag.String("s", "", "commit hash string start collecting commit messages from")
 	var endCommit = flag.String("e", "", "commit hash string to stop collecting commit message at")
-	var inclusionFlags = flag.String("i", "", "commit types to be includes, defaults to CI FIX REFACTOR FEATURE DOCS CHORE TEST OTHER")
+	var inclusionFlags = flag.String("i", "ci,docs,fix,feat,test,chore,other", "commit types to be includes, defaults to CI FIX REFACTOR FEATURE DOCS CHORE TEST OTHER")
 	var skipClassification = flag.Bool("skip", false, "if true will skip trying to classify and just give a list of changes")
 
 	flag.Parse()
@@ -76,32 +79,26 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 		return ErrMessage{"Error getting commits : ", err}
 	}
 
+	var inclusions commitTypeInclusions = bytes.SplitN([]byte(inclusionFlags), []byte(","), -1)
+
 	logContainer := logsByCategory{}
+
+	logContainer.Setup()
+
+	logContainer.CI.include = inclusions.checkInclusion("ci")
+	logContainer.FIX.include = inclusions.checkInclusion("fix")
+	logContainer.REFACTOR.include = inclusions.checkInclusion("refactor")
+	logContainer.FEATURE.include = inclusions.checkInclusion("feat")
+	logContainer.DOCS.include = inclusions.checkInclusion("docs")
+	logContainer.CHORE.include = inclusions.checkInclusion("chore")
+	logContainer.TEST.include = inclusions.checkInclusion("test")
+	logContainer.OTHER.include = inclusions.checkInclusion("other")
 
 	for _, c := range commits {
 		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		if !skipClassification {
-			switch strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0] {
-			case "ci":
-				logContainer.CI = append(logContainer.CI, normalizedHash)
-			case "fix":
-				logContainer.FIX = append(logContainer.FIX, normalizedHash)
-			case "refactor":
-				logContainer.REFACTOR = append(logContainer.REFACTOR, normalizedHash)
-			case "feat", "feature":
-				logContainer.FEATURE = append(logContainer.FEATURE, normalizedHash)
-			case "docs":
-				logContainer.DOCS = append(logContainer.DOCS, normalizedHash)
-			case "test":
-				logContainer.TEST = append(logContainer.TEST, normalizedHash)
-			case "chore":
-				logContainer.CHORE = append(logContainer.CHORE, normalizedHash)
-			default:
-				logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
-			}
-		} else {
-			logContainer.OTHER = append(logContainer.OTHER, normalizedHash)
-		}
+		key := strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0]
+
+		logContainer.AddCommit(key, normalizedHash, skipClassification)
 
 		if endHash == nil && isCommitToNearestTag(currentRepository, c) {
 			break
@@ -112,4 +109,15 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 	fmt.Println(logContainer.ToMarkdown(skipClassification))
 
 	return ErrMessage{}
+}
+
+func (inclusions *commitTypeInclusions) checkInclusion(flagToCheck string) bool {
+	if inclusions != nil {
+		for _, flag := range *inclusions {
+			if string(flag) == flagToCheck {
+				return true
+			}
+		}
+	}
+	return false
 }
