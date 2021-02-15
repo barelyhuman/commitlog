@@ -49,11 +49,33 @@ The usage is pretty simple, this cli tool assumes that you use [commitlint stand
 `refactor: <message>` - performance / code clean up changes or total BLOC changes  
 `fix: <message>` - for fixes (self-explanatory)  
 
+
+### Supported Flags (as of v0.0.4-dev.2)
+
+The below mentioned are the flags supported by the current branch and older tags might not support the flags 
+or certain inputs in flags, use the `-h` flag to see what's supported on the version you are using.
+
+```sh
+Usage of commitlog:
+  -e string
+        commit hash string / revision (ex. HEAD, HEAD^, HEAD~2) 
+         to stop collecting commit message at
+  -i string
+        commit types to be includes (default "ci,refactor,docs,fix,feat,test,chore,other")
+  -p string
+        path to the repository, points to the current working directory by default (default ".")
+  -s string
+        commit hash string / revision (ex. HEAD, HEAD^, HEAD~2) 
+         to start collecting commit messages from
+  -skip
+        if true will skip trying to classify and just give a list of changes
+```
+
  
 ### Example Output (from this exact repository)
 
 ```sh
-> commitlog path/to/repository
+> commitlog 
 ```
 
 ```markdown
@@ -71,10 +93,8 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 
 ## Current Limitations
 
-- No Tests added so is probably unstable right now
+- No Tests added so is probably unstable right now ( If you'd like to help writing tests, feel free to raise a PR)
 
-## Note 
- The current code base is a prototypal solution and while usable will be heavily refactored to follow best practices, if you'd like to take help of a better codebase if you are creating your own fork then you can take a refactored codebase from [https://github.com/percybolmer/commitlog](https://github.com/percybolmer/commitlog)
 
 ## Contribution
 
