@@ -11,6 +11,11 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+var (
+	latestTag   *plumbing.Reference
+	previousTag *plumbing.Reference
+)
+
 // GetLatestTagFromRepository - Get the latest Tag reference from the repo
 func GetLatestTagFromRepository(repository *git.Repository) (*plumbing.Reference, *plumbing.Reference, error) {
 	tagRefs, err := repository.Tags()
@@ -61,7 +66,13 @@ func GetLatestTagFromRepository(repository *git.Repository) (*plumbing.Reference
 
 // isCommitToNearestTag -  go through git revisions to find the latest tag and the nearest next tag
 func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
-	latestTag, previousTag, err := GetLatestTagFromRepository(repo)
+	if latestTag == nil || previousTag == nil {
+		var err error
+		latestTag, previousTag, err = GetLatestTagFromRepository(repo)
+		if err != nil {
+			log.Fatal("Error getting latest tags from repository")
+		}
+	}
 
 	ref, err := repo.Head()
 
@@ -77,9 +88,9 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 
 	if latestTag != nil && previousTag != nil {
 		if tillLatest {
-			return latestTag.Hash().String() == commit.Hash.String()
+			return latestTag.Hash() == commit.Hash
 		}
-		return previousTag.Hash().String() == commit.Hash.String()
+		return previousTag.Hash() == commit.Hash
 
 	}
 	return false
