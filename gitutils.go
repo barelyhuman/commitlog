@@ -120,30 +120,14 @@ func openRepository(path string) *git.Repository {
 
 // GetCommitFromString - get commit from hash string
 func GetCommitFromString(commitString string, repo *git.Repository) *object.Commit {
-	baseCommitReference, err := repo.Head()
+	hash, err := repo.ResolveRevision(plumbing.Revision(commitString))
 	if err != nil {
 		log.Fatal("Unable to get Repo head:", err)
 	}
-	cIter, err := repo.Log(&git.LogOptions{From: baseCommitReference.Hash()})
+
+	commitRef, err := repo.CommitObject(*hash)
 	if err != nil {
-		log.Fatal("Unable to get commits:", err)
+		log.Fatal("Unable to get resolve commit:", err)
 	}
-	foundMatch := false
-	var commitRef *object.Commit
-
-	for {
-		if foundMatch {
-			break
-		}
-
-		commit, _ := cIter.Next()
-
-		if commit.Hash.String() == commitString {
-			foundMatch = true
-			commitRef = commit
-		}
-
-	}
-
 	return commitRef
 }
