@@ -4,6 +4,7 @@ Changelog generator using Commit History
 
 ![Binary Builds](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds/badge.svg) 
 ![Binary Builds Pre-Releases](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds%20Pre-Releases/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/barelyhuman/commitlog)](https://goreportcard.com/report/github.com/barelyhuman/commitlog)
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
 
