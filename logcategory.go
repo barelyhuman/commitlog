@@ -41,15 +41,15 @@ func (logs logsByCategory) Setup() {
 }
 
 // printLog - loops through the collected logs to write them to string builder
-func (logs logContainer) printLog(out *strings.Builder, title string, skipped bool) {
-	if !logs.include {
+func (container logContainer) printLog(out *strings.Builder, title string, skipped bool) {
+	if !container.include {
 		return
 	}
-	if len(logs.commits) > 0 {
+	if len(container.commits) > 0 {
 		if !skipped {
 			out.WriteString(fmt.Sprintf("\n\n## %s  \n", title))
 		}
-		for _, item := range logs.commits {
+		for _, item := range container.commits {
 			out.WriteString(item + "\n")
 		}
 	}
@@ -80,59 +80,41 @@ func (logs *logsByCategory) ToMarkdown(skipped bool) string {
 
 // AddCommit - Add a commit to the needed logContainer based on skip and include flag
 func (logs *logsByCategory) AddCommit(key, commitHash string, skip bool) {
-	var addCommitToContainer *logContainer
-	switch key {
-	case "ci":
-		if logs.CI.include && !skip {
-			addCommitToContainer = &logs.CI
-		} else if skip && logs.CI.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "fix":
-		if logs.FIX.include && !skip {
-			addCommitToContainer = &logs.FIX
-		} else if skip && logs.FIX.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "refactor":
-		if logs.REFACTOR.include && !skip {
-			addCommitToContainer = &logs.REFACTOR
-		} else if skip && logs.REFACTOR.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "feat", "feature":
-		if logs.FEATURE.include && !skip {
-			addCommitToContainer = &logs.FEATURE
-		} else if skip && logs.FEATURE.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "docs":
-		if logs.DOCS.include && !skip {
-			addCommitToContainer = &logs.DOCS
-		} else if skip && logs.DOCS.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "test":
-		if logs.TEST.include && !skip {
-			addCommitToContainer = &logs.TEST
-		} else if skip && logs.TEST.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	case "chore":
-		if logs.CHORE.include && !skip {
-			addCommitToContainer = &logs.CHORE
-		} else if skip && logs.CHORE.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
-	default:
-		if logs.OTHER.include && !skip {
-			addCommitToContainer = &logs.OTHER
-		} else if skip && logs.OTHER.include {
-			addCommitToContainer = &logs.UNCLASSIFIED
-		}
+	addCommitToContainer := logs.findContainerByKey(key)
+	if !addCommitToContainer.canAddToContainer(skip) {
+		addCommitToContainer = &logs.UNCLASSIFIED
 	}
-
 	if addCommitToContainer != nil {
 		addCommitToContainer.commits = append(addCommitToContainer.commits, commitHash)
 	}
+}
+
+func (logs *logsByCategory) findContainerByKey(key string) *logContainer {
+	switch key {
+	case "ci":
+		return &logs.CI
+	case "fix":
+		return &logs.FIX
+	case "refactor":
+		return &logs.REFACTOR
+	case "feat", "feature":
+		return &logs.FEATURE
+	case "docs":
+		return &logs.DOCS
+	case "test":
+		return &logs.TEST
+	case "chore":
+		return &logs.CHORE
+	default:
+		return &logs.OTHER
+	}
+}
+
+func (container *logContainer) canAddToContainer(skip bool) bool {
+	if container.include && !skip {
+		return true
+	} else if skip && container.include {
+		return false
+	}
+	return true
 }
