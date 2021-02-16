@@ -52,7 +52,7 @@ The usage is pretty simple, this cli tool assumes that you use [commitlint stand
 `fix: <message>` - for fixes (self-explanatory)  
 
 
-### Supported Flags (as of v0.0.4-dev.2)
+### Supported Flags (as of v0.0.4-dev.3)
 
 The below mentioned are the flags supported by the current branch and older tags might not support the flags 
 or certain inputs in flags, use the `-h` flag to see what's supported on the version you are using.
