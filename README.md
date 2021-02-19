@@ -96,6 +96,7 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 ## Current Limitations
 
 - No Tests added so is probably unstable right now ( If you'd like to help writing tests, feel free to raise a PR)
+- Doesn't work inside a nested folder in the repository, needs to be on the root of the repository to work. (you can use the `-p` flag to set a path to generate logs from)
 
 
 ## Contribution
