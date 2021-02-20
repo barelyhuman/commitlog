@@ -102,3 +102,5 @@ b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 ## Contribution
 
 [Contribution Guidelines](CONTRIBUTING.md)
+
+<a href="https://www.buymeacoffee.com/barelyhuman"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=barelyhuman&button_colour=000000&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00"></a>
