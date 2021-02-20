@@ -30,9 +30,7 @@ func main() {
 
 	flag.Parse()
 
-	path := repoPath
-
-	err := CommitLog(*path, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
+	err := CommitLog(*repoPath, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
 
 	if err.err != nil {
 		log.Fatal(err.message, err.err)
