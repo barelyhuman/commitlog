@@ -47,6 +47,11 @@ go build
 go install 
 ```
 
+### Web Version 
+Source: [commitlog-web](https://github.com/barelyhuman/commitlog-web)
+
+Web App: [commitlog-web](https://commitlog-web.herokuapp.com/)
+
 ## Usage 
 
 The usage is pretty simple, this cli tool assumes that you use [commitlint standards](https://github.com/conventional-changelog/commitlint#what-is-commitlint) while writing your commits, if not it's okay everything will be classified under `Other Changes` instead of being grouped according to type of commit. 
