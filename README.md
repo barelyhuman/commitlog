@@ -8,6 +8,12 @@ Changelog generator using Commit History
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
 
+## Sheilds | Badges
+[![commitlog](https://img.shields.io/badge/changelogs-commitlog-blue)](https://github.com/barelyhuman/commitlog)
+```markdown
+[![commitlog](https://img.shields.io/badge/changelogs-commitlog-blue)](https://github.com/barelyhuman/commitlog)
+```
+
 ## Binaries 
 Binaries are available on the Github [releases](https://github.com/barelyhuman/commitlog/releases)
 
