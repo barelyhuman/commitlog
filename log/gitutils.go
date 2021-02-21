@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package main
+package commitlog
 
 import (
 	"log"
