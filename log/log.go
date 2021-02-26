@@ -146,13 +146,8 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 		return "", ErrMessage{"Unable to get repository HEAD:", err}
 	}
 
-	if startCommitString != "" {
-		startHash = GetCommitFromString(startCommitString, currentRepository)
-	}
-
-	if endCommitString != "" {
-		endHash = GetCommitFromString(endCommitString, currentRepository)
-	}
+	startHash = GetCommitFromString(startCommitString, currentRepository)
+	endHash = GetCommitFromString(endCommitString, currentRepository)
 
 	if startHash != nil {
 		cIter, err = currentRepository.Log(&git.LogOptions{From: startHash.Hash})

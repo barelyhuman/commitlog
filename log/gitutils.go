@@ -120,6 +120,10 @@ func openRepository(path string) *git.Repository {
 
 // GetCommitFromString - get commit from hash string
 func GetCommitFromString(commitString string, repo *git.Repository) *object.Commit {
+	if commitString == "" {
+		return nil
+	}
+
 	hash, err := repo.ResolveRevision(plumbing.Revision(commitString))
 	if err != nil {
 		log.Fatal("Unable to get Repo head:", err)
