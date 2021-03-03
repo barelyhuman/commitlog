@@ -108,8 +108,8 @@ func normalizeCommit(commitMessage string) string {
 	return strings.TrimSuffix(message, "\n")
 }
 
-// openRepository - open the git repository and return repository reference
-func openRepository(path string) *git.Repository {
+// OpenRepository - open the git repository and return repository reference
+func OpenRepository(path string) *git.Repository {
 	r, err := git.PlainOpen(path)
 	if err != nil {
 		log.Fatal("Error opening Repository: ", err)
