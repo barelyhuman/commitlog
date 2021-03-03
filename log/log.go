@@ -5,11 +5,15 @@ package commitlog
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
+
+// SupportedKeys - keys that are supported by the package
+const SupportedKeys = "ci|refactor|docs|fix|feat|test|chore|other"
 
 // ErrMessage - simple interface around error with a custom message
 type ErrMessage struct {
@@ -171,8 +175,9 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 		return "", ErrMessage{"Error getting commits : ", err}
 	}
 
-	var inclusions commitTypeInclusions = bytes.SplitN([]byte(inclusionFlags), []byte(","), -1)
-
+	var inclusions commitTypeInclusions
+	inclusions = append(inclusions, bytes.SplitN([]byte(inclusionFlags), []byte("|"), -1)...)
+	inclusions = append(inclusions, bytes.SplitN([]byte(inclusionFlags), []byte(","), -1)...)
 	logContainer := logsByCategory{}
 
 	logContainer.Setup()
@@ -188,7 +193,8 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 
 	for _, c := range commits {
 		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		key := strings.SplitN(strings.TrimSpace(c.Message), ":", 2)[0]
+		key := findKeyInCommit(SupportedKeys, c.Message)
+		key = strings.SplitN(strings.TrimSpace(key), ":", 2)[0]
 
 		logContainer.AddCommit(key, normalizedHash, skipClassification)
 
@@ -211,4 +217,17 @@ func (inclusions *commitTypeInclusions) checkInclusion(flagToCheck string) bool 
 		}
 	}
 	return false
+}
+
+func findKeyInCommit(key string, commitMessage string) string {
+	re := regexp.MustCompile(`^(` + key + `)[:]|^((` + key + `)\((\w+[, /\\]*)+\)[:])`)
+	if len(re.FindAllStringSubmatch(commitMessage, -1)) > 0 {
+		keyCheckOne := re.FindAllStringSubmatch(commitMessage, -1)[0][3]
+		if keyCheckOne == "" {
+			keyCheckTwo := re.FindAllStringSubmatch(commitMessage, -1)[0][1]
+			return keyCheckTwo
+		}
+		return keyCheckOne
+	}
+	return ""
 }
