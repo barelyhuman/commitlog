@@ -20,7 +20,7 @@ jobs:
       - name: Generate Change Log
         id: generate_log
         run: |
-          curl -s https://api.github.com/repos/barelyhuman/commitlog/releases/latest \
+          curl -s https://api.github.com/repos/barelyhuman/commitlog/releases/39397415 \
           | grep browser_download_url \
           | grep linux-amd64 \
           | cut -d '"' -f 4 \
