@@ -66,7 +66,7 @@ func (container logContainer) printLog(out *strings.Builder, title string, skipp
 			out.WriteString(fmt.Sprintf("\n\n## %s  \n", title))
 		}
 		for _, item := range container.commits {
-			out.WriteString(item + "\n")
+			out.WriteString(item + "  \n")
 		}
 	}
 }
