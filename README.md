@@ -1,3 +1,5 @@
+![header.png](assets/header.png)
+
 # Commitlog
 
 Changelog generator using Commit History
