@@ -25,5 +25,5 @@ func Init() {
 	}
 
 	// Default Command, parse all flags
-	commitlogCmd.Run()
+	commitlogCmd.Run(os.Args)
 }
