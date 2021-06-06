@@ -75,8 +75,6 @@ func (container logContainer) printLog(out *strings.Builder, title string, skipp
 func (logs *logsByCategory) ToMarkdown(skipped bool) string {
 	var markdownString strings.Builder
 
-	markdownString.WriteString("# Changelog \n")
-
 	if !skipped {
 		logs.FEATURE.printLog(&markdownString, "Features", skipped)
 		logs.FIX.printLog(&markdownString, "Fixes", skipped)
@@ -187,9 +185,10 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 	logContainer.OTHER.include = inclusions.checkInclusion("other")
 
 	for _, c := range commits {
-		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message)
-		key := findKeyInCommit(SupportedKeys, c.Message)
+		key, scopedKey := findKeyInCommit(SupportedKeys, c.Message)
+		fmt.Printf("key: %v,scopedKey:%v \n", key, scopedKey)
 		key = strings.SplitN(strings.TrimSpace(key), ":", 2)[0]
+		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message, scopedKey)
 
 		logContainer.AddCommit(key, normalizedHash, skipClassification)
 
@@ -214,15 +213,20 @@ func (inclusions *commitTypeInclusions) checkInclusion(flagToCheck string) bool 
 	return false
 }
 
-func findKeyInCommit(key string, commitMessage string) string {
+func findKeyInCommit(key string, commitMessage string) (string, string) {
 	re := regexp.MustCompile(`^(` + key + `)[:]|^((` + key + `)\((\w+[, /\\]*)+\)[:])`)
-	if len(re.FindAllStringSubmatch(commitMessage, -1)) > 0 {
-		keyCheckOne := re.FindAllStringSubmatch(commitMessage, -1)[0][3]
-		if keyCheckOne == "" {
-			keyCheckTwo := re.FindAllStringSubmatch(commitMessage, -1)[0][1]
-			return keyCheckTwo
-		}
-		return keyCheckOne
+	keyMatches := re.FindAllStringSubmatch(commitMessage, -1)
+	fmt.Printf("%v", keyMatches)
+	if len(keyMatches) == 0 {
+		return "", ""
 	}
-	return ""
+
+	scopedKey := keyMatches[0][0]
+	scopelessKey := keyMatches[0][3]
+
+	if scopelessKey == "" {
+		scopelessKey = keyMatches[0][1]
+	}
+
+	return scopelessKey, scopedKey
 }

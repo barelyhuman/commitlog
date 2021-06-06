@@ -98,17 +98,18 @@ Usage of commitlog:
 
 ```sh
 > commitlog 
+# which is the shorthand of 
+> commitlog log -p .
 ```
 
+**As of 0.0.6 there's an experimental release subcommand that can be used for version tagging**
+
 ```markdown
-# Changelog
-
 ## Fixes
+97c582b3eb5a6796ef9c250d9653ad90dce63cbe - example fix
 
-97c582b3eb5a6796ef9c250d9653ad90dce63cbe - fix: example fix
 
 ## Other Changes
-
 da6d837eb3134f836bfbe401de7882f2e0818ba8 - Create LICENSE
 b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 ```

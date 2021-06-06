@@ -97,7 +97,7 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 }
 
 // normalizeCommit - reduces the commit message to the first line and ignore the description text of the commit
-func normalizeCommit(commitMessage string) string {
+func normalizeCommit(commitMessage string, key string) string {
 	var message string
 	for i, msg := range strings.Split(commitMessage, "\n") {
 		if i == 0 {
@@ -105,7 +105,9 @@ func normalizeCommit(commitMessage string) string {
 			break
 		}
 	}
-	return strings.TrimSuffix(message, "\n")
+
+	removedPrefix := strings.TrimPrefix(strings.TrimSuffix(message, "\n"), key)
+	return strings.TrimSpace(strings.TrimSuffix(removedPrefix, "\n"))
 }
 
 // OpenRepository - open the git repository and return repository reference

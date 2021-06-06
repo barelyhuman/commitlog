@@ -17,7 +17,7 @@ var skipClassification *bool
 
 // Install - add flags and other options
 func Install() {
-	clogCmd = flag.NewFlagSet("release", flag.ExitOnError)
+	clogCmd = flag.NewFlagSet("commitlog", flag.ExitOnError)
 	repoPath = clogCmd.String("p", ".", "path to the repository, points to the current working directory by default")
 	startCommit = clogCmd.String("s", "", "commit hash string / revision (ex. HEAD, HEAD^, HEAD~2) \n to start collecting commit messages from")
 	endCommit = clogCmd.String("e", "", "commit hash string / revision (ex. HEAD, HEAD^, HEAD~2) \n to stop collecting commit message at")
@@ -27,11 +27,17 @@ func Install() {
 
 // Run - execute the command
 func Run(args []string) {
-	clogCmd.Parse(args)
-	changelog, err := clog.CommitLog(*repoPath, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
 
-	if err.Err != nil {
-		log.Fatal(err.Message, err.Err)
+	err := clogCmd.Parse(args)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	changelog, clogErr := clog.CommitLog(*repoPath, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
+
+	if clogErr.Err != nil {
+		log.Fatal(clogErr.Message, clogErr.Err)
 	}
 
 	fmt.Println(changelog)

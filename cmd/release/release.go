@@ -61,7 +61,10 @@ func Run(args []string) {
 	var tagToUse = *tag
 
 	isBeta := needsQuestionnaire(args)
-	releaseCmd.Parse(args)
+	err := releaseCmd.Parse(args)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if tagToUse == "" {
 		tagToUse = getTagString()
