@@ -3,7 +3,6 @@
 package commitlog
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -30,7 +29,7 @@ func GetLatestTagFromRepository(repository *git.Repository) (*plumbing.Reference
 	var previousTagReturn *plumbing.Reference
 
 	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
-		revision := plumbing.Revision(tagRef.Name().String())
+		revision := plumbing.Revision(tagRef.Name())
 
 		tagCommitHash, err := repository.ResolveRevision(revision)
 		if err != nil {
@@ -58,6 +57,7 @@ func GetLatestTagFromRepository(repository *git.Repository) (*plumbing.Reference
 
 		return nil
 	})
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,19 +75,6 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 		}
 	}
 
-	revisionHashLatest, err := repo.ResolveRevision(plumbing.Revision(latestTag.Name()))
-	if err != nil {
-		log.Fatal("Error getting the targetted commit for latestTag")
-	}
-	revisionHashPrevious, err := repo.ResolveRevision(plumbing.Revision(previousTag.Name()))
-	if err != nil {
-		log.Fatal("Error getting the targetted commit for previousTag")
-	}
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	ref, err := repo.Head()
 
 	if err != nil {
@@ -100,14 +87,29 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 		log.Fatal("Couldn't get latest tag...", err)
 	}
 
-	if latestTag != nil && previousTag != nil {
-		if tillLatest {
-			return *revisionHashLatest == commit.Hash
-		}
-		return *revisionHashPrevious == commit.Hash
-
+	if latestTag == nil && previousTag == nil {
+		return false
 	}
-	return false
+
+	// Ignore errors as these are to be optionally checked
+	followedTagReferenceLatest, err := repo.ResolveRevision(plumbing.Revision(latestTag.Name()))
+
+	if err != nil {
+		log.Fatal("Failed to get referenced commit hash for latestTag's revision")
+	}
+
+	followedTagReferencePrev, err := repo.ResolveRevision(plumbing.Revision(previousTag.Name()))
+
+	if err != nil {
+		log.Fatal("Failed to get referenced commit hash for previous's revision")
+	}
+
+	if tillLatest {
+		return *followedTagReferenceLatest == commit.Hash
+	}
+
+	return *followedTagReferencePrev == commit.Hash
+
 }
 
 // normalizeCommit - reduces the commit message to the first line and ignore the description text of the commit
