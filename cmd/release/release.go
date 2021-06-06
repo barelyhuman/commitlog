@@ -38,11 +38,10 @@ var betaSuffixPrompt = &survey.Input{
 
 // TagVersion - struct holding the broken down tag
 type TagVersion struct {
-	major  string
-	minor  string
-	patch  string
-	beta   string
-	isBeta bool
+	major string
+	minor string
+	patch string
+	beta  string
 }
 
 // Install - add flags and other options
@@ -99,14 +98,20 @@ func needsQuestionnaire(args []string) bool {
 
 		switch semver {
 		case "major":
-			*major = true
-			break
+			{
+				*major = true
+				break
+			}
 		case "minor":
-			*minor = true
-			break
+			{
+				*minor = true
+				break
+			}
 		case "patch":
-			*patch = true
-			break
+			{
+				*patch = true
+				break
+			}
 		}
 	}
 
@@ -116,6 +121,7 @@ func needsQuestionnaire(args []string) bool {
 func createRelease(tagString string, increaseMajor bool, increaseMinor bool, increasePatch bool, betaSuffix string, isBeta bool) {
 	version, hasV := breakTag(tagString)
 	releaseTagString := ""
+	isIncreasedSemver := false
 
 	majorAsInt, err := strconv.ParseInt(version.major, 10, 32)
 	if err != nil {
@@ -140,20 +146,29 @@ func createRelease(tagString string, increaseMajor bool, increaseMinor bool, inc
 
 	if increaseMajor {
 		majorAsInt++
+		minorAsInt = 0
+		patchAsInt = 0
+		isIncreasedSemver = true
 	}
 
 	if increaseMinor {
 		minorAsInt++
+		patchAsInt = 0
+		isIncreasedSemver = true
 	}
 
 	if increasePatch {
 		patchAsInt++
+		isIncreasedSemver = true
 	}
 
 	releaseTagString += fmt.Sprintf("%d.%d.%d", majorAsInt, minorAsInt, patchAsInt)
 
 	if isBeta {
 		betaAsInt++
+		if isIncreasedSemver {
+			betaAsInt = 0
+		}
 		releaseTagString += fmt.Sprintf("-%s.%d", betaSuffix, betaAsInt)
 	}
 

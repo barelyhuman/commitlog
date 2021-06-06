@@ -20,7 +20,7 @@ jobs:
       - name: Generate Change Log
         id: generate_log
         run: |
-          curl -L https://github.com/barelyhuman/commitlog/releases/download/v0.0.6/commitlog-linux-amd64.tar.gz -o clog.tar.gz
+          curl -L https://github.com/barelyhuman/commitlog/releases/download/v0.0.7-dev.1/commitlog-linux-amd64.tar.gz -o clog.tar.gz
           tar -xvzf clog.tar.gz
           chmod +x commitlog 
           ./commitlog . > CHANGELOG.txt
