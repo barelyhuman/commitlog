@@ -186,7 +186,6 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 
 	for _, c := range commits {
 		key, scopedKey := findKeyInCommit(SupportedKeys, c.Message)
-		fmt.Printf("key: %v,scopedKey:%v \n", key, scopedKey)
 		key = strings.SplitN(strings.TrimSpace(key), ":", 2)[0]
 		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message, scopedKey)
 
@@ -216,7 +215,6 @@ func (inclusions *commitTypeInclusions) checkInclusion(flagToCheck string) bool 
 func findKeyInCommit(key string, commitMessage string) (string, string) {
 	re := regexp.MustCompile(`^(` + key + `)[:]|^((` + key + `)\((\w+[, /\\]*)+\)[:])`)
 	keyMatches := re.FindAllStringSubmatch(commitMessage, -1)
-	fmt.Printf("%v", keyMatches)
 	if len(keyMatches) == 0 {
 		return "", ""
 	}

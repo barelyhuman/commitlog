@@ -3,6 +3,7 @@
 package commitlog
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -74,6 +75,19 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 		}
 	}
 
+	revisionHashLatest, err := repo.ResolveRevision(plumbing.Revision(latestTag.Name()))
+	if err != nil {
+		log.Fatal("Error getting the targetted commit for latestTag")
+	}
+	revisionHashPrevious, err := repo.ResolveRevision(plumbing.Revision(previousTag.Name()))
+	if err != nil {
+		log.Fatal("Error getting the targetted commit for previousTag")
+	}
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	ref, err := repo.Head()
 
 	if err != nil {
@@ -88,9 +102,9 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 
 	if latestTag != nil && previousTag != nil {
 		if tillLatest {
-			return latestTag.Hash() == commit.Hash
+			return *revisionHashLatest == commit.Hash
 		}
-		return previousTag.Hash() == commit.Hash
+		return *revisionHashPrevious == commit.Hash
 
 	}
 	return false
