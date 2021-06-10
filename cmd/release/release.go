@@ -50,7 +50,7 @@ func Install() {
 	major = releaseCmd.Bool("major", false, "If release is a *major* one, will increment the x.0.0 ")
 	minor = releaseCmd.Bool("minor", false, "If release is a *minor* one, will increment the 0.x.0 ")
 	patch = releaseCmd.Bool("patch", false, "If release is a *patch*, will increment the 0.0.x ")
-	beta = releaseCmd.String("beta", "beta", "If the release is a beta, to add/increment tag with `-beta.x` or mentioned string")
+	beta = releaseCmd.String("beta", "", "If the release is a beta, to add/increment tag with `-beta.x` or mentioned string")
 	tag = releaseCmd.String("tag", "", "The Tag to be taken as base")
 }
 
