@@ -22,7 +22,7 @@ var beta *string
 var tag *string
 
 var semverPrompt = &survey.Select{
-	Message: "Choose a semver version:",
+	Message: "Choose a semver version (choose none for prerelease/beta increments):",
 	Options: []string{"major", "minor", "patch", "none"},
 	Default: "none",
 }
@@ -32,8 +32,8 @@ var betaPrompt = &survey.Confirm{
 }
 
 var betaSuffixPrompt = &survey.Input{
-	Message: "Enter the exiting beta suffix, will be also used for the any beta suffix?",
-	Default: "beta",
+	Message: "Enter the exiting beta suffix (if any)? (eg: beta or dev or canary)",
+	Default: "",
 }
 
 // TagVersion - struct holding the broken down tag
@@ -47,9 +47,9 @@ type TagVersion struct {
 // Install - add flags and other options
 func Install() {
 	releaseCmd = flag.NewFlagSet("release", flag.ExitOnError)
-	major = releaseCmd.Bool("major", false, "If release is a major one, will increment the x.0.0 ")
-	minor = releaseCmd.Bool("minor", false, "If release is a minor one, will increment the 0.x.0 ")
-	patch = releaseCmd.Bool("patch", false, "If release is a patch, will increment the 0.0.x ")
+	major = releaseCmd.Bool("major", false, "If release is a *major* one, will increment the x.0.0 ")
+	minor = releaseCmd.Bool("minor", false, "If release is a *minor* one, will increment the 0.x.0 ")
+	patch = releaseCmd.Bool("patch", false, "If release is a *patch*, will increment the 0.0.x ")
 	beta = releaseCmd.String("beta", "beta", "If the release is a beta, to add/increment tag with `-beta.x` or mentioned string")
 	tag = releaseCmd.String("tag", "", "The Tag to be taken as base")
 }
@@ -57,10 +57,15 @@ func Install() {
 // Run - execute the command
 func Run(args []string) {
 
-	var tagToUse = *tag
-
 	isBeta := needsQuestionnaire(args)
 	err := releaseCmd.Parse(args)
+
+	var tagToUse = *tag
+
+	if *beta != "" {
+		isBeta = true
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,6 +140,11 @@ func createRelease(tagString string, increaseMajor bool, increaseMinor bool, inc
 	if err != nil {
 		log.Fatal("Error converting to number on version.patch", version)
 	}
+
+	if version.beta == "" {
+		version.beta = "-1"
+	}
+
 	betaAsInt, err := strconv.ParseInt(version.beta, 10, 32)
 	if err != nil {
 		log.Fatal("Error converting to number on version.beta", version)
@@ -254,7 +264,10 @@ func breakTag(tagString string) (*TagVersion, bool) {
 	version.major = tagSplits[0]
 	version.minor = tagSplits[1]
 	version.patch = tagSplits[2]
-	version.beta = tagSplits[3]
+
+	if len(tagSplits) > 3 {
+		version.beta = tagSplits[3]
+	}
 
 	// Check if the major version has the letter `v` in the tag
 	if len(version.major) > 1 && strings.Contains(version.major, "v") {
@@ -272,8 +285,15 @@ func breakTag(tagString string) (*TagVersion, bool) {
 func getTagString() string {
 	currentRepository := clog.OpenRepository(".")
 	var tagRef *plumbing.Reference
+	var err error
 	if *tag == "" {
-		tagRef, _, _ = clog.GetLatestTagFromRepository(currentRepository)
+		tagRef, _, err = clog.GetLatestTagFromRepository(currentRepository)
+		if err != nil {
+			log.Fatalf("coulnd't retrieve given tag from your repository: Error %v", err)
+		}
+	}
+	if tagRef == nil {
+		log.Fatalf("coulnd't retrieve given tag from your repository")
 	}
 	onlyTag := tagRef.Name().Short()
 	return onlyTag
