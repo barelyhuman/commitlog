@@ -1,9 +1,9 @@
-name: Binary Builds Pre-Releases
+name: Changelogs
 
 on:
   push:
     tags:
-      - 'v*-dev.*'
+      - 'v*'
 
 jobs:
   pre-release:
@@ -24,20 +24,10 @@ jobs:
           tar -xvzf clog.tar.gz
           chmod +x commitlog 
           ./commitlog . > CHANGELOG.txt
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
-        with:
-          platforms: "linux/amd64, linux/arm, linux/arm64, windows/amd64, darwin/amd64"
-          package: ""
-          name: commitlog
-          compress: "true"
-          dest: dist
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          prerelease: true
           body_path: CHANGELOG.txt
-          files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

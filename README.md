@@ -120,6 +120,29 @@ da6d837eb3134f836bfbe401de7882f2e0818ba8 - Create LICENSE
 b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 ```
 
+## Subcommands 
+
+#### `release` (beta / experimental)
+
+As of **0.0.7-dev.7** the cli comes with a sub command to maintain version for the repository.
+
+The command will
+- create the `.commitlog.release` file to handle and persit the version
+- handle the semver increments 
+- create a new commit and tag for the same
+
+```sh
+$ commitlog release -beta -beta-suffix dev
+Current Version:
+v0.0.7-dev.6
+New Version
+0.0.7-dev.7
+? Do you want me to create a commit for the new version?: Yes
+✔ Updated Version
+```
+
+
+
 ## Current Limitations
 
 - No Tests added so is probably unstable right now ( If you'd like to help writing tests, feel free to raise a PR)
