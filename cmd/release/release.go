@@ -3,23 +3,28 @@ package release
 import (
 	"flag"
 	"fmt"
-	"log"
+	"io/fs"
+	"os"
 	"strconv"
 	"strings"
 
-	survey "github.com/AlecAivazis/survey/v2"
 	clog "github.com/barelyhuman/commitlog/log"
+	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
+
+	survey "github.com/AlecAivazis/survey/v2"
 )
 
-var releaseCmd *flag.FlagSet
-var major *bool
-var minor *bool
-var patch *bool
-var beta *string
-var tag *string
+var (
+	releaseCmd *flag.FlagSet
+	major      *bool
+	minor      *bool
+	patch      *bool
+	beta       *bool
+	betaSuffix *string
+)
+
+const configFileName = ".commitlog.release"
 
 var semverPrompt = &survey.Select{
 	Message: "Choose a semver version (choose none for prerelease/beta increments):",
@@ -32,16 +37,26 @@ var betaPrompt = &survey.Confirm{
 }
 
 var betaSuffixPrompt = &survey.Input{
-	Message: "Enter the exiting beta suffix (if any)? (eg: beta or dev or canary)",
+	Message: "Enter the exiting beta suffix (if any) (eg: beta or dev or canary) :",
 	Default: "",
+}
+
+var confirmCreation = &survey.Confirm{
+	Message: "Do you want me to create a commit for the new version?:",
+}
+
+type Config struct {
+	version *TagVersion
 }
 
 // TagVersion - struct holding the broken down tag
 type TagVersion struct {
-	major string
-	minor string
-	patch string
-	beta  string
+	major       int64
+	minor       int64
+	patch       int64
+	beta        bool
+	betaSuffix  string
+	betaVersion int64
 }
 
 // Install - add flags and other options
@@ -50,55 +65,236 @@ func Install() {
 	major = releaseCmd.Bool("major", false, "If release is a *major* one, will increment the x.0.0 ")
 	minor = releaseCmd.Bool("minor", false, "If release is a *minor* one, will increment the 0.x.0 ")
 	patch = releaseCmd.Bool("patch", false, "If release is a *patch*, will increment the 0.0.x ")
-	beta = releaseCmd.String("beta", "", "If the release is a beta, to add/increment tag with `-beta.x` or mentioned string")
-	tag = releaseCmd.String("tag", "", "The Tag to be taken as base")
+	beta = releaseCmd.Bool("beta", false, "If the release is a beta/prerelease")
+	betaSuffix = releaseCmd.String("beta-suffix", "", "If the release is a beta, to add/increment tag with `-beta.x` or mentioned string")
+}
+
+func bail(err error) {
+	if err != nil {
+		fail(err.Error())
+		panic(1)
+	}
+}
+
+func bullet(msg string) {
+	color.New(color.FgWhite).Add(color.Bold).Println(msg)
+}
+
+func fail(msg string) {
+	color.New(color.FgRed).Add(color.Bold).Println(msg)
+}
+
+func success(msg string) {
+	color.New(color.FgGreen).Add(color.Bold).Println(msg)
+}
+
+func dim(msg string) {
+	color.White(msg)
 }
 
 // Run - execute the command
 func Run(args []string) {
 
-	isBeta := needsQuestionnaire(args)
 	err := releaseCmd.Parse(args)
 
-	var tagToUse = *tag
+	bail(err)
 
-	if *beta != "" {
-		isBeta = true
+	isInitialised, err := checkReleaseInit()
+	bail(err)
+
+	if !isInitialised {
+		bullet("Initializing Commitlog Release")
+		err := initialiseRelease()
+		bail(err)
+		success("Created, .commitlog.release")
+		dim("Please, modify the file to match the current latest version or leave it as is if starting with a new project")
 	}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	config, err := readConfigFile()
+	bail(err)
 
-	if tagToUse == "" {
-		tagToUse = getTagString()
-	}
+	askQuestions(args)
 
-	createRelease(tagToUse, *major, *minor, *patch, *beta, isBeta)
+	err = createRelease(config, *major, *minor, *patch, *beta, *betaSuffix)
+
+	bail(err)
 }
 
-// needsQuestionnaire - Check semver and beta if no args were supplied
-func needsQuestionnaire(args []string) bool {
+// checkReleaseInit - check if release was already initialised in the particular folder, if not, it'll return false
+func checkReleaseInit() (bool, error) {
+	files, err := os.ReadDir(".")
+	if err != nil {
+		return false, err
+	}
+
+	hasConfigFile := false
+
+	for _, file := range files {
+		if file.Name() == configFileName {
+			hasConfigFile = true
+		}
+	}
+
+	return hasConfigFile, nil
+}
+
+// initialiseRelease - create the .commitlog.release file in the current folder
+// TODO: need to add a question before doing so
+func initialiseRelease() error {
+	err := os.WriteFile(configFileName, []byte("0.0.0"), os.ModePerm)
+	return err
+}
+
+// readConfigFile - read the file and parse it as a config, limited to version details for now
+func readConfigFile() (Config, error) {
+	config := Config{}
+	dataInBytes, err := os.ReadFile(configFileName)
+	if err != nil {
+		return config, err
+	}
+
+	asString := string(dataInBytes)
+
+	success("Current Version:")
+	bullet(asString)
+
+	version, _ := breakTag(asString)
+
+	config.version = version
+
+	return config, nil
+}
+
+// createRelease - create a release based on the read config and given parameters
+func createRelease(config Config, incMajor bool, incMinor bool, incPatch bool, incBeta bool, betaSuffixString string) error {
+	updatedVersion := TagVersion{
+		major:       config.version.major,
+		minor:       config.version.minor,
+		patch:       config.version.patch,
+		beta:        incBeta,
+		betaSuffix:  betaSuffixString,
+		betaVersion: config.version.betaVersion,
+	}
+
+	resetBeta := false
+
+	if incMajor {
+		updatedVersion.major++
+		updatedVersion.minor = 0
+		updatedVersion.patch = 0
+		resetBeta = true
+	}
+
+	if incMinor {
+		updatedVersion.minor++
+		updatedVersion.patch = 0
+		resetBeta = true
+	}
+
+	if incPatch {
+		updatedVersion.patch++
+		resetBeta = true
+	}
+
+	updatedVersionString := fmt.Sprintf("%v.%v.%v", updatedVersion.major, updatedVersion.minor, updatedVersion.patch)
+
+	if updatedVersion.beta {
+		if resetBeta {
+			updatedVersion.betaVersion = 0
+		} else {
+			updatedVersion.betaVersion++
+		}
+
+		var sb strings.Builder
+
+		if len(updatedVersion.betaSuffix) > 1 {
+			sb.WriteString(updatedVersionString + fmt.Sprintf("-%v.", updatedVersion.betaSuffix))
+		} else {
+			sb.WriteString(updatedVersionString + "-")
+		}
+		sb.WriteString(fmt.Sprintf("%v", updatedVersion.betaVersion))
+		updatedVersionString = sb.String()
+	}
+
+	success("New Version")
+	bullet(updatedVersionString)
+
+	var confirmed bool
+
+	survey.AskOne(confirmCreation, &confirmed)
+
+	if !confirmed {
+		fail("✖ Cancelled")
+		return nil
+	}
+
+	err := writeUpdatedVersion(updatedVersionString)
+	if err != nil {
+		return err
+	}
+
+	success("✔ Updated Version")
+
+	return nil
+}
+
+func writeUpdatedVersion(versionString string) error {
+	err := os.WriteFile(configFileName, []byte(versionString), fs.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = createCommit(versionString)
+	return err
+}
+
+func createCommit(versionString string) error {
+	repo := clog.OpenRepository(".")
+
+	wt, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	_, err = wt.Add(configFileName)
+	if err != nil {
+		return err
+	}
+
+	commit, err := wt.Commit(versionString, &git.CommitOptions{})
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.CreateTag(versionString, commit, &git.CreateTagOptions{
+		Message: versionString,
+	})
+
+	return err
+}
+
+// askQuestions - Check semver and beta if no args were supplied
+func askQuestions(args []string) error {
 	var semver string
-	var isBeta bool
 
 	if len(args) < 1 {
 		err := survey.AskOne(semverPrompt, &semver)
+
 		if err != nil {
-			fmt.Println(err.Error())
-			return false
+			return err
 		}
 
-		err = survey.AskOne(betaPrompt, &isBeta)
+		err = survey.AskOne(betaPrompt, beta)
+
 		if err != nil {
-			fmt.Println(err.Error())
-			return false
+			return err
 		}
 
-		err = survey.AskOne(betaSuffixPrompt, beta)
-		if err != nil {
-			fmt.Println(err.Error())
-			return false
+		if *beta {
+			err = survey.AskOne(betaSuffixPrompt, betaSuffix)
+			if err != nil {
+				return err
+			}
 		}
 
 		switch semver {
@@ -120,181 +316,50 @@ func needsQuestionnaire(args []string) bool {
 		}
 	}
 
-	return isBeta
+	return nil
 }
 
-func createRelease(tagString string, increaseMajor bool, increaseMinor bool, increasePatch bool, betaSuffix string, isBeta bool) {
-	version, hasV := breakTag(tagString)
-	releaseTagString := ""
-	isIncreasedSemver := false
-
-	majorAsInt, err := strconv.ParseInt(version.major, 10, 32)
-	if err != nil {
-		log.Fatal("Error converting to number on version.major", version)
-	}
-	minorAsInt, err := strconv.ParseInt(version.minor, 10, 32)
-	if err != nil {
-		log.Fatal("Error converting to number on version.minor", version)
-	}
-	patchAsInt, err := strconv.ParseInt(version.patch, 10, 32)
-	if err != nil {
-		log.Fatal("Error converting to number on version.patch", version)
-	}
-
-	if version.beta == "" {
-		version.beta = "-1"
-	}
-
-	betaAsInt, err := strconv.ParseInt(version.beta, 10, 32)
-	if err != nil {
-		log.Fatal("Error converting to number on version.beta", version)
-	}
-
-	if hasV {
-		releaseTagString += "v"
-	}
-
-	if increaseMajor {
-		majorAsInt++
-		minorAsInt = 0
-		patchAsInt = 0
-		isIncreasedSemver = true
-	}
-
-	if increaseMinor {
-		minorAsInt++
-		patchAsInt = 0
-		isIncreasedSemver = true
-	}
-
-	if increasePatch {
-		patchAsInt++
-		isIncreasedSemver = true
-	}
-
-	releaseTagString += fmt.Sprintf("%d.%d.%d", majorAsInt, minorAsInt, patchAsInt)
-
-	if isBeta {
-		betaAsInt++
-		if isIncreasedSemver {
-			betaAsInt = 0
-		}
-		releaseTagString += fmt.Sprintf("-%s.%d", betaSuffix, betaAsInt)
-	}
-
-	fmt.Println(releaseTagString)
-
-	isConfirmed := confirmRelease(releaseTagString)
-
-	if !isConfirmed {
-		return
-	}
-
-	repo := clog.OpenRepository(".")
-
-	setTag(repo, releaseTagString)
-}
-
-func tagExists(tag string, r *git.Repository) bool {
-	tagFoundErr := "tag was found"
-	tags, err := r.TagObjects()
-	if err != nil {
-		log.Printf("get tags error: %s", err)
-		return false
-	}
-	res := false
-	err = tags.ForEach(func(t *object.Tag) error {
-		if t.Name == tag {
-			res = true
-			return fmt.Errorf(tagFoundErr)
-		}
-		return nil
-	})
-	if err != nil && err.Error() != tagFoundErr {
-		log.Printf("iterate tags error: %s", err)
-		return false
-	}
-	return res
-}
-
-func setTag(r *git.Repository, tag string) (bool, error) {
-	if tagExists(tag, r) {
-		log.Printf("tag %s already exists", tag)
-		return false, nil
-	}
-	log.Printf("Set tag %s", tag)
-	h, err := r.Head()
-	if err != nil {
-		log.Printf("get HEAD error: %s", err)
-		return false, err
-	}
-
-	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
-		Message: tag,
-	})
-
-	if err != nil {
-		log.Printf("create tag error: %s", err)
-		return false, err
-	}
-
-	return true, nil
-}
-
-func confirmRelease(tag string) bool {
-	var confirm bool
-
-	confirmReleasePrompt := &survey.Confirm{
-		Message: "Do you want me to create the following tag: " + tag + " ?",
-	}
-
-	err := survey.AskOne(confirmReleasePrompt, &confirm)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return confirm
-}
-
+// breakTag - break the given semver version string into proper version values, does support breaking semver pre-release strings
 func breakTag(tagString string) (*TagVersion, bool) {
 	hasV := false
 	version := &TagVersion{}
 	tagSplits := strings.Split(tagString, ".")
 
-	version.major = tagSplits[0]
-	version.minor = tagSplits[1]
-	version.patch = tagSplits[2]
+	majorStringSplit := strings.Split(tagSplits[0], "")
+
+	if len(majorStringSplit) > 1 {
+		hasV = true
+		major, err := strconv.ParseInt(majorStringSplit[1], 10, 32)
+		bail(err)
+		version.major = major
+	} else {
+		major, err := strconv.ParseInt(majorStringSplit[0], 10, 32)
+		bail(err)
+		version.major = major
+	}
+
+	minor, err := strconv.ParseInt(tagSplits[1], 10, 32)
+	bail(err)
+	version.minor = minor
 
 	if len(tagSplits) > 3 {
-		version.beta = tagSplits[3]
+		version.beta = true
+		betaV, err := strconv.ParseInt(tagSplits[3], 10, 32)
+		bail(err)
+		version.betaVersion = betaV
+	} else {
+		version.betaVersion = -1
 	}
 
-	// Check if the major version has the letter `v` in the tag
-	if len(version.major) > 1 && strings.Contains(version.major, "v") {
-		version.major = version.major[len("v"):]
-		hasV = true
-	}
+	patchStringSplit := strings.Split(tagSplits[2], "-")
 
-	if len(version.patch) > 1 && strings.Contains(version.patch, "-"+*beta) {
-		version.patch = strings.Replace(version.patch, "-"+*beta, "", -1)
+	patch, err := strconv.ParseInt(patchStringSplit[0], 10, 32)
+	bail(err)
+	version.patch = patch
+
+	if len(patchStringSplit) > 1 {
+		version.betaSuffix = patchStringSplit[1]
 	}
 
 	return version, hasV
-}
-
-func getTagString() string {
-	currentRepository := clog.OpenRepository(".")
-	var tagRef *plumbing.Reference
-	var err error
-	if *tag == "" {
-		tagRef, _, err = clog.GetLatestTagFromRepository(currentRepository)
-		if err != nil {
-			log.Fatalf("coulnd't retrieve given tag from your repository: Error %v", err)
-		}
-	}
-	if tagRef == nil {
-		log.Fatalf("coulnd't retrieve given tag from your repository")
-	}
-	onlyTag := tagRef.Name().Short()
-	return onlyTag
 }
