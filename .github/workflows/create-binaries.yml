@@ -1,8 +1,8 @@
 name: Binary Builds
 
 on:
-  release:
-    types: [created]
+  release
+
 
 jobs:
   releases-matrix:
