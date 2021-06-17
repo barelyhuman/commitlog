@@ -87,7 +87,7 @@ func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
 		log.Fatal("Couldn't get latest tag...", err)
 	}
 
-	if latestTag == nil && previousTag == nil {
+	if latestTag == nil || previousTag == nil {
 		return false
 	}
 
