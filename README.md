@@ -12,6 +12,8 @@
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
 
+![](https://badges.pufler.dev/visits/barelyhuman/commitlog?style=for-the-badge&color=131313)
+
 ## Sheilds | Badges
 
 [![commitlog](https://img.shields.io/badge/changelogs-commitlog-blue)](https://github.com/barelyhuman/commitlog)
