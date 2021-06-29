@@ -2,32 +2,22 @@ name: Changelogs
 
 on:
   push:
-    tags:
-      - '*'
+    tags: "*"
 
 jobs:
-  pre-release:
-    name: Pre Release
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - name: Checkout the repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: Generate Change Log
         id: generate_log
         run: |
-          curl -L https://github.com/barelyhuman/commitlog/releases/download/v0.0.7-dev.4/commitlog-linux-amd64.tar.gz -o clog.tar.gz
-          tar -xvzf clog.tar.gz
-          chmod +x commitlog 
-          ./commitlog . > CHANGELOG.txt
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+          curl -sf https://gobinaries.com/barelyhuman/commitlog | sh
+          commitlog > CHANGELOG.md
+      - uses: ncipollo/release-action@v1
         with:
-          body_path: CHANGELOG.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          bodyFile: "CHANGELOG.md"
+          token: ${{ secrets.GH_TOKEN }}
