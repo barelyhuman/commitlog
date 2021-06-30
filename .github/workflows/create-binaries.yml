@@ -1,6 +1,9 @@
 name: Binary Builds
 
-on: release
+on:
+  release:
+    types:
+      - created
 
 jobs:
   releases-matrix:
