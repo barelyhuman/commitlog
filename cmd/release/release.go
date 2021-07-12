@@ -196,7 +196,7 @@ func createRelease(config Config, incMajor bool, incMinor bool, incPatch bool, i
 		resetBeta = true
 	}
 
-	updatedVersionString := fmt.Sprintf("%v.%v.%v", updatedVersion.major, updatedVersion.minor, updatedVersion.patch)
+	updatedVersionString := fmt.Sprintf("v%v.%v.%v", updatedVersion.major, updatedVersion.minor, updatedVersion.patch)
 
 	if updatedVersion.beta {
 		if resetBeta {
