@@ -133,6 +133,12 @@ func (container *logContainer) canAddToContainer(skip bool) bool {
 	return true
 }
 
+/*
+	TODO:
+	- [] if the current start is also a tag then get data till prev tag
+	- [] add in option to include the description, if the commit has a description
+*/
+
 // CommitLog - Generate commit log
 func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string, skipClassification bool) (string, ErrMessage) {
 	currentRepository := OpenRepository(path)
