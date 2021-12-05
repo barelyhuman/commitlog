@@ -133,12 +133,6 @@ func (container *logContainer) canAddToContainer(skip bool) bool {
 	return true
 }
 
-/*
-	TODO:
-	- [] if the current start is also a tag then get data till prev tag
-	- [] add in option to include the description, if the commit has a description
-*/
-
 // CommitLog - Generate commit log
 func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string, skipClassification bool) (string, ErrMessage) {
 	currentRepository := OpenRepository(path)
@@ -147,15 +141,19 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 	var cIter object.CommitIter
 
 	if err != nil {
-		return "", ErrMessage{"Unable to get repository HEAD:", err}
+		return "", ErrMessage{"Unable to get repository HEAD, are you sure you are in a git repository? Error:", err}
 	}
 
 	startHash = GetCommitFromString(startCommitString, currentRepository)
 	endHash = GetCommitFromString(endCommitString, currentRepository)
+	isHeadTag := false
 
 	if startHash != nil {
 		cIter, err = currentRepository.Log(&git.LogOptions{From: startHash.Hash})
 	} else {
+		if IsHashATag(currentRepository, baseCommitReference.Hash()) {
+			isHeadTag = true
+		}
 		cIter, err = currentRepository.Log(&git.LogOptions{From: baseCommitReference.Hash()})
 	}
 
@@ -165,8 +163,26 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 
 	var commits []*object.Commit
 
+	var latestTag *object.Commit
+	var previousTag *object.Commit
+	tagAssignment := 0
+
 	err = cIter.ForEach(func(c *object.Commit) error {
 		commits = append(commits, c)
+		if isHeadTag && tagAssignment == 0 && latestTag == nil && c.Hash == baseCommitReference.Hash() {
+			latestTag = c
+			tagAssignment += 1
+
+		} else if IsHashATag(currentRepository, c.Hash) {
+			if latestTag == nil && tagAssignment == 0 {
+				latestTag = c
+				tagAssignment += 1
+			}
+			if previousTag == nil && tagAssignment == 1 {
+				previousTag = c
+				tagAssignment += 1
+			}
+		}
 		return nil
 	})
 
@@ -197,13 +213,12 @@ func CommitLog(path string, startCommitString string, endCommitString string, in
 
 		logContainer.AddCommit(key, normalizedHash, skipClassification)
 
-		if endHash == nil && isCommitToNearestTag(currentRepository, c) {
+		if endHash == nil && previousTag != nil && previousTag.Hash == c.Hash {
 			break
 		} else if endHash != nil && c.Hash == endHash.Hash {
 			break
 		}
 	}
-
 	return logContainer.ToMarkdown(skipClassification), ErrMessage{}
 }
 
