@@ -134,8 +134,7 @@ func (container *logContainer) canAddToContainer(skip bool) bool {
 }
 
 // CommitLog - Generate commit log
-func CommitLog(path string, startCommitString string, endCommitString string, inclusionFlags string, skipClassification bool) (string, ErrMessage) {
-	currentRepository := OpenRepository(path)
+func CommitLog(currentRepository *git.Repository, startCommitString string, endCommitString string, inclusionFlags string, skipClassification bool) (string, ErrMessage) {
 	baseCommitReference, err := currentRepository.Head()
 	var startHash, endHash *object.Commit
 	var cIter object.CommitIter
