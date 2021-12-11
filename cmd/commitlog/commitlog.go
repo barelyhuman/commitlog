@@ -34,7 +34,9 @@ func Run(args []string) {
 		log.Fatalln(err)
 	}
 
-	changelog, clogErr := clog.CommitLog(*repoPath, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
+	currentRepository := clog.OpenRepository(*repoPath)
+
+	changelog, clogErr := clog.CommitLog(currentRepository, *startCommit, *endCommit, *inclusionFlags, *skipClassification)
 
 	if clogErr.Err != nil {
 		log.Fatal(clogErr.Message, clogErr.Err)

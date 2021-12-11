@@ -11,105 +11,20 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-var (
-	latestTag   *plumbing.Reference
-	previousTag *plumbing.Reference
-)
-
-// GetLatestTagFromRepository - Get the latest Tag reference from the repo
-func GetLatestTagFromRepository(repository *git.Repository) (*plumbing.Reference, *plumbing.Reference, error) {
-	tagRefs, err := repository.Tags()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var latestTagCommit *object.Commit
-	var latestTagName *plumbing.Reference
-	var previousTag *plumbing.Reference
-	var previousTagReturn *plumbing.Reference
-
-	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
-		revision := plumbing.Revision(tagRef.Name())
-
-		tagCommitHash, err := repository.ResolveRevision(revision)
+func IsHashATag(currentRepository *git.Repository, hash plumbing.Hash) bool {
+	isTag := false
+	tags, _ := currentRepository.Tags()
+	tags.ForEach(func(tagRef *plumbing.Reference) error {
+		revHash, err := currentRepository.ResolveRevision(plumbing.Revision(tagRef.Name()))
 		if err != nil {
 			return err
 		}
-
-		commit, err := repository.CommitObject(*tagCommitHash)
-		if err != nil {
-			return err
+		if *revHash == hash {
+			isTag = true
 		}
-
-		if latestTagCommit == nil {
-			latestTagCommit = commit
-			latestTagName = tagRef
-			previousTagReturn = previousTag
-		}
-
-		if commit.Committer.When.After(latestTagCommit.Committer.When) {
-			latestTagCommit = commit
-			latestTagName = tagRef
-			previousTagReturn = previousTag
-		}
-
-		previousTag = tagRef
-
 		return nil
 	})
-
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return latestTagName, previousTagReturn, nil
-}
-
-// isCommitToNearestTag -  go through git revisions to find the latest tag and the nearest next tag
-func isCommitToNearestTag(repo *git.Repository, commit *object.Commit) bool {
-	if latestTag == nil || previousTag == nil {
-		var err error
-		latestTag, previousTag, err = GetLatestTagFromRepository(repo)
-		if err != nil {
-			log.Fatal("Error getting latest tags from repository")
-		}
-	}
-
-	ref, err := repo.Head()
-
-	if err != nil {
-		log.Fatal("Unable to get repository HEAD:", err)
-	}
-
-	tillLatest := latestTag != nil && latestTag.Hash().String() != ref.Hash().String()
-
-	if err != nil {
-		log.Fatal("Couldn't get latest tag...", err)
-	}
-
-	if latestTag == nil || previousTag == nil {
-		return false
-	}
-
-	// Ignore errors as these are to be optionally checked
-	followedTagReferenceLatest, err := repo.ResolveRevision(plumbing.Revision(latestTag.Name()))
-
-	if err != nil {
-		log.Fatal("Failed to get referenced commit hash for latestTag's revision")
-	}
-
-	followedTagReferencePrev, err := repo.ResolveRevision(plumbing.Revision(previousTag.Name()))
-
-	if err != nil {
-		log.Fatal("Failed to get referenced commit hash for previous's revision")
-	}
-
-	if tillLatest {
-		return *followedTagReferenceLatest == commit.Hash
-	}
-
-	return *followedTagReferencePrev == commit.Hash
-
+	return isTag
 }
 
 // normalizeCommit - reduces the commit message to the first line and ignore the description text of the commit
