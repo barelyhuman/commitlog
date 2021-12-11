@@ -3,10 +3,24 @@ package commitlog
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
+
+func getTagOptions(message string) *git.CreateTagOptions {
+	return &git.CreateTagOptions{
+		Message: message,
+		Tagger: &object.Signature{
+			Name:  "Test",
+			Email: "test@reaper.im",
+			When:  time.Now(),
+		},
+	}
+
+}
 
 func TestCommitLogSingleTag(t *testing.T) {
 	secondCommit := expectedCommits[1]
@@ -18,9 +32,7 @@ func TestCommitLogSingleTag(t *testing.T) {
 	hash, err := repo.ResolveRevision(plumbing.Revision(secondCommit))
 	bail(err)
 
-	_, err = repo.CreateTag("0.0.0", *hash, &git.CreateTagOptions{
-		Message: "0.0.0",
-	})
+	_, err = repo.CreateTag("0.0.0", *hash, getTagOptions("0.0.0"))
 	bail(err)
 
 	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
@@ -61,14 +73,10 @@ func TestCommitLogDualTag(t *testing.T) {
 	secondLastHash, err := repo.ResolveRevision(plumbing.Revision(secondLastCommit))
 	bail(err)
 
-	_, err = repo.CreateTag("0.0.0", *secondHash, &git.CreateTagOptions{
-		Message: "0.0.0",
-	})
+	_, err = repo.CreateTag("0.0.0", *secondHash, getTagOptions("0.0.0"))
 	bail(err)
 
-	_, err = repo.CreateTag("0.0.1", *secondLastHash, &git.CreateTagOptions{
-		Message: "0.0.1",
-	})
+	_, err = repo.CreateTag("0.0.1", *secondLastHash, getTagOptions("0.0.1"))
 	bail(err)
 
 	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
@@ -111,14 +119,10 @@ func TestCommitLogHeadTag(t *testing.T) {
 	lastHash, err := repo.ResolveRevision(plumbing.Revision(lastCommit))
 	bail(err)
 
-	_, err = repo.CreateTag("0.0.0", *secondHash, &git.CreateTagOptions{
-		Message: "0.0.0",
-	})
+	_, err = repo.CreateTag("0.0.0", *secondHash, getTagOptions("0.0.0"))
 	bail(err)
 
-	_, err = repo.CreateTag("0.0.1", *lastHash, &git.CreateTagOptions{
-		Message: "0.0.1",
-	})
+	_, err = repo.CreateTag("0.0.1", *lastHash, getTagOptions("0.0.1"))
 	bail(err)
 
 	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
