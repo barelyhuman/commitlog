@@ -5,6 +5,7 @@
       <samp>Changelog generator using Commit History</samp>
 </p>
 
+[![Test](https://github.com/barelyhuman/commitlog/actions/workflows/test.yml/badge.svg)](https://github.com/barelyhuman/commitlog/actions/workflows/test.yml)
 ![Binary Builds](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds/badge.svg)
 ![Binary Builds Pre-Releases](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds%20Pre-Releases/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/barelyhuman/commitlog)](https://goreportcard.com/report/github.com/barelyhuman/commitlog)
@@ -122,15 +123,16 @@ da6d837eb3134f836bfbe401de7882f2e0818ba8 - Create LICENSE
 b0f1b1d2bc4265cb72b70b3ae5b60f8e65f47b12 - initial commit
 ```
 
-## Subcommands 
+## Subcommands
 
 #### `release` (beta / experimental)
 
 As of **0.0.7-dev.7** the cli comes with a sub command to maintain version for the repository.
 
 The command will
+
 - create the `.commitlog.release` file to handle and persit the version
-- handle the semver increments 
+- handle the semver increments
 - create a new commit and tag for the same
 
 ```sh
@@ -142,8 +144,6 @@ New Version
 ? Do you want me to create a commit for the new version?: Yes
 ✔ Updated Version
 ```
-
-
 
 ## Current Limitations
 
