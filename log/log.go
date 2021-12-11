@@ -210,13 +210,14 @@ func CommitLog(currentRepository *git.Repository, startCommitString string, endC
 		key = strings.SplitN(strings.TrimSpace(key), ":", 2)[0]
 		normalizedHash := c.Hash.String() + " - " + normalizeCommit(c.Message, scopedKey)
 
-		logContainer.AddCommit(key, normalizedHash, skipClassification)
-
 		if endHash == nil && previousTag != nil && previousTag.Hash == c.Hash {
 			break
 		} else if endHash != nil && c.Hash == endHash.Hash {
 			break
 		}
+
+		logContainer.AddCommit(key, normalizedHash, skipClassification)
+
 	}
 	return logContainer.ToMarkdown(skipClassification), ErrMessage{}
 }

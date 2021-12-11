@@ -126,7 +126,6 @@ func TestCommitLogStartHash(t *testing.T) {
 	t.Log("Commits: ", expectedCommits)
 	t.Log("Start At:", startCommitHash)
 
-	// include only feature commits
 	log, _ := CommitLog(repo, startCommitHash, "", SupportedKeys, true)
 	if log == "" {
 		t.Fail()
@@ -151,12 +150,11 @@ func TestCommitLogEndHash(t *testing.T) {
 
 	endCommitHash := expectedCommits[1]
 	firstCommit := expectedCommits[0]
-	acceptedCommitHashes := expectedCommits[1:]
+	acceptedCommitHashes := expectedCommits[2:]
 
 	t.Log("Commits: ", expectedCommits)
 	t.Log("End At:", endCommitHash)
 
-	// include only feature commits
 	log, _ := CommitLog(repo, "", endCommitHash, SupportedKeys, true)
 	if log == "" {
 		t.Fail()
@@ -176,8 +174,3 @@ func TestCommitLogEndHash(t *testing.T) {
 
 	t.Log("\n", log)
 }
-
-// TODO:
-// - Tests for checking between tags
-// - Variation of the above to check between 2 tags
-// - Another variation where one tag points to the head of the repo
