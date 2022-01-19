@@ -29,9 +29,15 @@ I'd like to keep building more such tools and do them full time instead of doing
 
 <a href="https://www.buymeacoffee.com/barelyhuman"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=barelyhuman&button_colour=000000&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00"></a>
 
-## Binaries
+## Install
 
 Binaries are available on the Github [releases](https://github.com/barelyhuman/commitlog/releases)
+
+or you can use goblin 
+
+```sh
+curl -sf https://goblin.reaper.im/github.com/barelyhuman/commitlog | sh
+```
 
 ## Build
 
