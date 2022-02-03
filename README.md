@@ -10,10 +10,9 @@
 ![Binary Builds Pre-Releases](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds%20Pre-Releases/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/barelyhuman/commitlog)](https://goreportcard.com/report/github.com/barelyhuman/commitlog)
 [![commitlog](https://img.shields.io/badge/changelogs-commitlog-blue)](https://github.com/barelyhuman/commitlog)
+![Hits](https://hits.link/hits?url=https%3A%2F%2Fgithub.com%2Fbarelyhuman%2Fcommitlog)
 
 To see an example of this in action, you can check the actions file for this repo. Yes it uses itself to generate the release logs
-
-![](https://badges.pufler.dev/visits/barelyhuman/commitlog?style=for-the-badge&color=131313)
 
 ## Sheilds | Badges
 
