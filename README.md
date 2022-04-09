@@ -26,8 +26,6 @@ To see an example of this in action, you can check the actions file for this rep
 
 I'd like to keep building more such tools and do them full time instead of doing it during the weekend, help achieve that if you like the tool.
 
-<a href="https://www.buymeacoffee.com/barelyhuman"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=barelyhuman&button_colour=000000&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00"></a>
-
 ## Install
 
 Binaries are available on the Github [releases](https://github.com/barelyhuman/commitlog/releases)
