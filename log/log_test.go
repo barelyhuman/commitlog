@@ -53,7 +53,7 @@ var repo *git.Repository = setup()
 
 func TestCommitLogDefault(t *testing.T) {
 
-	log, _ := CommitLog(repo, "", "", SupportedKeys, false)
+	log, _ := CommitLog(repo, "", "", SupportedKeys, false, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -70,7 +70,7 @@ func TestCommitLogDefault(t *testing.T) {
 
 func TestCommitLogSkipped(t *testing.T) {
 
-	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
+	log, _ := CommitLog(repo, "", "", SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -92,7 +92,7 @@ func TestCommitLogSkipped(t *testing.T) {
 func TestCommitLogInclusions(t *testing.T) {
 
 	// include only feature commits
-	log, _ := CommitLog(repo, "", "", "feat", true)
+	log, _ := CommitLog(repo, "", "", "feat", true, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -126,7 +126,7 @@ func TestCommitLogStartHash(t *testing.T) {
 	t.Log("Commits: ", expectedCommits)
 	t.Log("Start At:", startCommitHash)
 
-	log, _ := CommitLog(repo, startCommitHash, "", SupportedKeys, true)
+	log, _ := CommitLog(repo, startCommitHash, "", SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -155,7 +155,7 @@ func TestCommitLogEndHash(t *testing.T) {
 	t.Log("Commits: ", expectedCommits)
 	t.Log("End At:", endCommitHash)
 
-	log, _ := CommitLog(repo, "", endCommitHash, SupportedKeys, true)
+	log, _ := CommitLog(repo, "", endCommitHash, SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
