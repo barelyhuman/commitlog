@@ -35,7 +35,7 @@ func TestCommitLogSingleTag(t *testing.T) {
 	_, err = repo.CreateTag("0.0.0", *hash, getTagOptions("0.0.0"))
 	bail(err)
 
-	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
+	log, _ := CommitLog(repo, "", "", SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -79,7 +79,7 @@ func TestCommitLogDualTag(t *testing.T) {
 	_, err = repo.CreateTag("0.0.1", *secondLastHash, getTagOptions("0.0.1"))
 	bail(err)
 
-	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
+	log, _ := CommitLog(repo, "", "", SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
@@ -125,7 +125,7 @@ func TestCommitLogHeadTag(t *testing.T) {
 	_, err = repo.CreateTag("0.0.1", *lastHash, getTagOptions("0.0.1"))
 	bail(err)
 
-	log, _ := CommitLog(repo, "", "", SupportedKeys, true)
+	log, _ := CommitLog(repo, "", "", SupportedKeys, true, false)
 	if log == "" {
 		t.Fail()
 	}
