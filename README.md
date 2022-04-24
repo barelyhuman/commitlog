@@ -1,9 +1,6 @@
-![header.png](assets/header.png)
-
-<hr />
 <p align="center">
-      <samp>Changelog generator using Commit History</samp>
-</p>
+  <img src="assets/commitlog.png" height="64">
+<p align="center">Changelog generator using Commit History</p>
 
 [![Test](https://github.com/barelyhuman/commitlog/actions/workflows/test.yml/badge.svg)](https://github.com/barelyhuman/commitlog/actions/workflows/test.yml)
 ![Binary Builds](https://github.com/barelyhuman/commitlog/workflows/Binary%20Builds/badge.svg)
