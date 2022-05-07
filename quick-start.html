@@ -1,0 +1,67 @@
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+    <body>
+  <div class="layout-container">
+  <section>
+  <nav class="sidebar"><ul>
+<li><a href="/">Home</a></li>
+<li><a href="/install">Install</a></li>
+<li><a href="/quick-start">Quick Start</a></li>
+<li><a href="/usage">Usage</a>
+<ul>
+<li><a href="/selective-changelogs">Selective Changelogs</a></li>
+<li><a href="/versioning">Version Management</a></li>
+<li><a href="/manual">Manual</a></li>
+</ul>
+</li>
+</ul>
+</nav></section><section><h3><a href="/">commitlog</a></h3>
+<h1>Quick Start</h1>
+<h2>Changelog</h2>
+<ol>
+<li>
+<p>Install using one of the methods from <a href="/install">Installation Instructions</a></p>
+</li>
+<li>
+<p>Change terminal directory into the git repository you want the changelogs from.</p>
+</li>
+<li>
+<p>run the base command</p>
+<pre><code class="language-sh"># on mac
+$ commitlog | pbcopy
+
+# on linux with x11
+$ commitlog | xclip
+</code></pre>
+</li>
+</ol>
+<h2>Version Management</h2>
+<ol>
+<li>
+<p>Install using one of the methods from <a href="/install">Installation Instructions</a></p>
+</li>
+<li>
+<p>Change terminal directory into the git repository you want the changelogs from.</p>
+</li>
+<li>
+<p>Initialise version management</p>
+<pre><code class="language-sh">$ commitlog release init
+</code></pre>
+</li>
+<li>
+<p>If working in an existing project, change the <code>.commitlog.release</code> file to match with the current version of the project.</p>
+</li>
+<li>
+<p>Run the needed command to increase versino</p>
+<pre><code class="language-sh">$ commitlog release
+</code></pre>
+</li>
+</ol>
+</section></div>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+  <script>
+    hljs.highlightAll();
+  </script>
+  </body>
+  

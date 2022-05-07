@@ -1,0 +1,36 @@
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+    <body>
+  <div class="layout-container">
+  <section>
+  <nav class="sidebar"><ul>
+<li><a href="/">Home</a></li>
+<li><a href="/install">Install</a></li>
+<li><a href="/quick-start">Quick Start</a></li>
+<li><a href="/usage">Usage</a>
+<ul>
+<li><a href="/selective-changelogs">Selective Changelogs</a></li>
+<li><a href="/versioning">Version Management</a></li>
+<li><a href="/manual">Manual</a></li>
+</ul>
+</li>
+</ul>
+</nav></section><section><h3><a href="/">commitlog</a></h3>
+<h2>Version Management</h2>
+<p>There's not much to version management as it's a very simple handler of semver increments.</p>
+<h3>Initialise Versioning</h3>
+<p>To work with <code>commitlog release</code> you'll need a <code>.commitlog.release</code> file in your repo and that can be added using the following command. This will set the initial version to be <code>v0.0.0</code> when starting and you can sync it with you current package version manually by changing the file.
+(We wish to add automatic syncing with major language version management systems but I'll need help due to low bandwidth)</p>
+<pre><code class="language-sh">$ commitlog release init
+</code></pre>
+<h3>Increments</h3>
+<p>You can then run the <code>commitlog release</code> command to initialise the TUI flow for selecting the next version or you can do the same using the flags if you are in a <strong>non-interactive</strong> environment.</p>
+<p><strong>Note</strong>: Increments are of the standard semver spec with the minor change of pre-releases being called <strong>beta</strong> releases</p>
+</section></div>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+  <script>
+    hljs.highlightAll();
+  </script>
+  </body>
+  

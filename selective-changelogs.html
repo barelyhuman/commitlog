@@ -1,0 +1,69 @@
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+    <body>
+  <div class="layout-container">
+  <section>
+  <nav class="sidebar"><ul>
+<li><a href="/">Home</a></li>
+<li><a href="/install">Install</a></li>
+<li><a href="/quick-start">Quick Start</a></li>
+<li><a href="/usage">Usage</a>
+<ul>
+<li><a href="/selective-changelogs">Selective Changelogs</a></li>
+<li><a href="/versioning">Version Management</a></li>
+<li><a href="/manual">Manual</a></li>
+</ul>
+</li>
+</ul>
+</nav></section><section><h3><a href="/">commitlog</a></h3>
+<h1>Selective Changelogs</h1>
+<h2>Classification</h2>
+<p>Commitlog was built on a minor subset of classification flags from the commitlint spec
+which includes the following type of commits.</p>
+<p><code>ci|refactor|docs|fix|feat|test|chore|other</code></p>
+<p>These are all turned on by default on the cli and will use the commit message's subject to classify commits for you.</p>
+<p>Eg:
+The following git message would generate a commitlog like so</p>
+<pre><code># git message
+feat: added handling for feature flags
+</code></pre>
+<pre><code class="language-markdown">&lt;!-- COMMITLOG --&gt;
+
+# Features
+
+53cb64436a3df5b22702cf6d012a4d09df93d930 - added handling for feature flags
+</code></pre>
+<p>Everything that cannot be classified in the above types will be put into <code>other</code></p>
+<h3>Selected types</h3>
+<p>If you only want to include feature and fix flags for changelogs you could do so in the following manner</p>
+<pre><code class="language-sh">$ commitlog -i &quot;fix|feat&quot;
+# or
+$ commitlog -i &quot;fix,feat&quot;
+</code></pre>
+<h3>Skip classification</h3>
+<p>If you wish to avoid classification all together and just want commits between a range you can do so as well (though you are better off without the tool for this usecase since git handles this natively)</p>
+<pre><code class="language-sh">$ commitlog --skip
+</code></pre>
+<h2>Commits in range</h2>
+<p>A very common use case is to get commits between a range if you aren't using tags in your current workflow.
+This can be done by using <strong>git revision handles</strong> or the <strong>commit hashes</strong>.</p>
+<p>Eg:
+Let's say I want the last 3 commits</p>
+<pre><code class="language-sh">$ commitlog -s HEAD -e HEAD~4
+</code></pre>
+<p><small><code>HEAD~4</code> since the end commit is excluded from the range.</small></p>
+<p>Both <code>-s</code> and <code>-e</code> are individual flags and don't have to be used together.</p>
+<p>So something like will also give you the last 4 commits.</p>
+<pre><code class="language-sh">$ commitlog -e HEAD~4
+</code></pre>
+<p>and the following would give you all commits till the next tagged instance starting form the given commit</p>
+<pre><code class="language-sh">$ commitlog -s HEAD~4
+</code></pre>
+</section></div>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+  <script>
+    hljs.highlightAll();
+  </script>
+  </body>
+  
