@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/barelyhuman/commitlog/main/assets/commitlog.png" height="64">
-<p align="center">Changelog generator using Commit History</p>
+<p align="center">commits to changelogs</p>
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/barelyhuman/commitlog)](https://goreportcard.com/report/github.com/barelyhuman/commitlog)
 
