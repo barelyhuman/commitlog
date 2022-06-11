@@ -33,25 +33,40 @@ func main() {
 					return commands.Commitlog(c)
 				},
 				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "path",
+						Value:   ".",
+						Aliases: []string{"p"},
+						Usage:   "root with the '.git' folder `PATH`",
+					},
 					&cli.BoolFlag{
 						Name:  "promo",
 						Usage: "add promo text to the end of output",
 					},
 					&cli.StringFlag{
-						Name:  "out",
-						Usage: "path to the output `FILE`",
+						Name:    "out",
+						Aliases: []string{"o"},
+						Usage:   "path to the output `FILE`",
 					},
 					&cli.BoolFlag{
 						Name:  "stdio",
+						Value: true,
 						Usage: "print to the stdout",
 					},
 					&cli.StringFlag{
-						Name: "start",
+						Name:  "categories",
+						Value: "",
+						Usage: "categories to use, includes all commits by default. any text you add here will be used to create categories out of the commits",
+					},
+					&cli.StringFlag{
+						Name:    "start",
+						Aliases: []string{"s"},
 						Usage: "`START` reference for the commit to include commits from," +
 							"This is inclusive of the given commit reference",
 					},
 					&cli.StringFlag{
-						Name: "end",
+						Name:    "end",
+						Aliases: []string{"e"},
 						Usage: "`END` reference for the commit to stop including commits at." +
 							"This is exclusive of the given commit reference",
 					},
