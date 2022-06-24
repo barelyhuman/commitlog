@@ -13,26 +13,28 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-type commitClassification struct {
+// commitsByCategory is a collection of commits by a given key
+// the _key_ can be `all-changes` or a dynamic key / pattern defined
+// by the user
+type commitsByCategory struct {
 	key     string
 	commits []string
 }
 
 type Generator struct {
-	repo                *git.Repository
-	workingDirectorPath string
-	startRef            string
-	endRef              string
-	addPromo            bool
-	categories          []string
-	output              struct {
+	repo       *git.Repository
+	dirPath    string
+	startRef   string
+	endRef     string
+	addPromo   bool
+	categories []string
+	output     struct {
 		stdio    bool
 		file     bool
 		filePath string
 	}
-	classifiedCommits []commitClassification
-	inMarkdown        string
-	commitToProcess   []*object.Commit
+	classifiedCommits []commitsByCategory
+	rawCommits        []*object.Commit
 }
 
 type GeneratorConfigMod func(*Generator)
@@ -42,7 +44,7 @@ func (g *Generator) openRepo() {
 		return
 	}
 
-	r, err := git.PlainOpen(g.workingDirectorPath)
+	r, err := git.PlainOpen(g.dirPath)
 	if err != nil {
 		log.Fatal("Error opening Repository: ", err)
 	}
@@ -110,7 +112,7 @@ func (g *Generator) readCommitsInTags() (err error) {
 	}
 
 	// this will either have commits between 2 tags or all commits if no tags exist
-	g.commitToProcess = commits
+	g.rawCommits = commits
 
 	return
 
@@ -151,7 +153,7 @@ func (g *Generator) readCommitsInRange() (err error) {
 		commits = append(commits, c)
 	}
 
-	g.commitToProcess = commits
+	g.rawCommits = commits
 
 	return
 
@@ -165,9 +167,15 @@ func (g *Generator) ReadCommmits() (err error) {
 	g.openRepo()
 
 	if len(g.startRef) > 0 || len(g.endRef) > 0 {
-		g.readCommitsInRange()
+		err = g.readCommitsInRange()
+		if err != nil {
+			return
+		}
 	} else {
-		g.readCommitsInTags()
+		err = g.readCommitsInTags()
+		if err != nil {
+			return
+		}
 	}
 
 	return
@@ -178,11 +186,11 @@ func (g *Generator) Classify() (err error) {
 	if len(g.categories) == 0 {
 		allCommits := []string{}
 
-		for _, commit := range g.commitToProcess {
+		for _, commit := range g.rawCommits {
 			allCommits = append(allCommits, lib.CommitToLog(commit))
 		}
 
-		g.classifiedCommits = []commitClassification{
+		g.classifiedCommits = []commitsByCategory{
 			{
 				key:     "All Changes",
 				commits: allCommits,
@@ -200,7 +208,7 @@ func (g *Generator) Classify() (err error) {
 
 		catgCommits := []string{}
 
-		for _, commit := range g.commitToProcess {
+		for _, commit := range g.rawCommits {
 			if !rgx.Match([]byte(commit.Message)) {
 				continue
 			}
@@ -208,7 +216,7 @@ func (g *Generator) Classify() (err error) {
 			catgCommits = append(catgCommits, lib.CommitToLog(commit))
 		}
 
-		g.classifiedCommits = append(g.classifiedCommits, commitClassification{
+		g.classifiedCommits = append(g.classifiedCommits, commitsByCategory{
 			key:     catg,
 			commits: catgCommits,
 		})
@@ -255,7 +263,7 @@ func (g *Generator) Generate() (err error) {
 
 func CreateGenerator(path string, mods ...GeneratorConfigMod) *Generator {
 	generator := &Generator{
-		workingDirectorPath: path,
+		dirPath: path,
 	}
 
 	for _, mod := range mods {

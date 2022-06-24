@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-//go:embed .commitlog.release
+// go:embed .commitlog.release
 var version string
 
 func main() {
