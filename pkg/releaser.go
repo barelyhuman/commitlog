@@ -37,7 +37,6 @@ func (r *Releaser) String() (s string) {
 	b.WriteString(strconv.Itoa(r.next.patch))
 
 	if len(r.next.preString) > 0 {
-		b.Write([]byte("-"))
 		b.Write([]byte(r.next.preString))
 	}
 
@@ -62,7 +61,14 @@ func CreateNewReleaser(vString string, mods ...ReleaserMod) (r *Releaser, err er
 
 	vParts := strings.Split(simplifiedV, ".")
 
-	r.v.patch, err = strconv.Atoi(vParts[2])
+	preParts := strings.Split(vParts[2], "-")
+
+	if len(preParts) > 1 {
+		r.v.patch, err = strconv.Atoi(preParts[0])
+	} else {
+		r.v.patch, err = strconv.Atoi(vParts[2])
+	}
+
 	if err != nil {
 		return
 	}

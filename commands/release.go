@@ -43,6 +43,10 @@ func Release(c *cli.Context) (err error) {
 		releaserOpts = append(releaserOpts, pkg.WithPatchIncrement())
 	}
 
+	if c.Bool("pre") {
+		releaserOpts = append(releaserOpts, pkg.WithPrereleaseIncrement())
+	}
+
 	releaser, err := pkg.CreateNewReleaser(versionString, releaserOpts...)
 
 	if err != nil {
