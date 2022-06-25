@@ -84,6 +84,12 @@ func main() {
 						Name:  "init",
 						Usage: "initialise commitlog release",
 					},
+					&cli.StringFlag{
+						Name:    "path",
+						Value:   ".",
+						Aliases: []string{"p"},
+						Usage:   "root with the '.git' folder `PATH`",
+					},
 					&cli.BoolFlag{
 						Name: "pre-release",
 						Usage: "create a pre-release version. will default to patch increment unless" +
@@ -109,12 +115,12 @@ func main() {
 					&cli.BoolFlag{
 						Name:  "commit",
 						Value: false,
-						Usage: "if true will create a commit, of the changed version",
+						Usage: "if true will create a commit and tag, of the changed version",
 					},
 					&cli.BoolFlag{
-						Name:  "tag",
+						Name:  "push",
 						Value: false,
-						Usage: "if true will create a tag, with the given version",
+						Usage: "if true will create push the created release commit + tag on origin",
 					},
 				},
 			},

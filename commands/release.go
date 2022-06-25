@@ -5,6 +5,9 @@ import (
 	"os"
 
 	"github.com/barelyhuman/commitlog/pkg"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/urfave/cli/v2"
 )
 
@@ -46,13 +49,48 @@ func Release(c *cli.Context) (err error) {
 		return err
 	}
 
-	// TODO:
-	// add commit
-	// add tagging
-	// add push
-	// methods to the `releaser`
-
 	err = os.WriteFile(".commitlog.release", []byte(releaser.String()), os.ModePerm)
+	if err != nil {
+		return
+	}
+
+	openRepo, err := git.PlainOpen(c.String("path"))
+	if err != nil {
+		return err
+	}
+
+	var commitHash plumbing.Hash
+	wt, err := openRepo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	if c.Bool("commit") {
+		wt.Add(".commitlog.release")
+		commitHash, err = wt.Commit("chore: version"+releaser.String(), &git.CommitOptions{})
+		if err != nil {
+			return err
+		}
+
+		_, err = openRepo.CreateTag(releaser.String(), commitHash, &git.CreateTagOptions{})
+		if err != nil {
+			err = fmt.Errorf("looks like there was error while creating a tag for the version commit, please try again or create a tag manually: %v", err)
+			return err
+		}
+	}
+
+	if c.Bool("push") {
+		_, err := wt.Status()
+		if err != nil {
+			return err
+		}
+
+		openRepo.Push(&git.PushOptions{
+			RemoteName: "origin",
+			Progress:   os.Stdout,
+			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+		})
+	}
 
 	return err
 }
