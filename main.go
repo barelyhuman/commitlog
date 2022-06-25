@@ -91,12 +91,12 @@ func main() {
 						Usage:   "root with the '.git' folder `PATH`",
 					},
 					&cli.BoolFlag{
-						Name: "pre-release",
+						Name: "pre",
 						Usage: "create a pre-release version. will default to patch increment unless" +
 							"specified and not already a pre-release",
 					},
 					&cli.StringFlag{
-						Name:  "pre-release-tag",
+						Name:  "pre-tag",
 						Value: "beta",
 						Usage: "create a pre-release version",
 					},
