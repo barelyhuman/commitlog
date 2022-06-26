@@ -1,7 +1,0 @@
-- [Home](/)
-- [Install](/install)
-- [Quick Start](/quick-start)
-- [Usage](/usage)
-  - [Selective Changelogs](/selective-changelogs)
-  - [Version Management](/versioning)
-  - [Manual](/manual)
