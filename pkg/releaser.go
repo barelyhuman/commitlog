@@ -16,9 +16,10 @@ type version struct {
 }
 
 type Releaser struct {
-	raw  string
-	v    version
-	next version
+	raw    string
+	v      version
+	next   version
+	preTag string
 }
 
 func (r *Releaser) HasPrerelease() bool {
@@ -37,6 +38,7 @@ func (r *Releaser) String() (s string) {
 	b.WriteString(strconv.Itoa(r.next.patch))
 
 	if len(r.next.preString) > 0 {
+		b.Write([]byte("-"))
 		b.Write([]byte(r.next.preString))
 	}
 
@@ -86,6 +88,8 @@ func CreateNewReleaser(vString string, mods ...ReleaserMod) (r *Releaser, err er
 
 	r.v.preString = semver.Prerelease(vString)
 
+	r.preTag = strings.Split(r.v.preString, ".")[0]
+
 	r.next.major = r.v.major
 	r.next.minor = r.v.minor
 	r.next.patch = r.v.patch
@@ -106,11 +110,24 @@ func WithPrerelease(pre string) ReleaserMod {
 
 func WithPrereleaseIncrement() ReleaserMod {
 	return func(r *Releaser) {
-		preParts := strings.Split(r.v.preString, ".")
-		prePointer, _ := strconv.Atoi(preParts[1])
-		prePointer += 1
-		preParts[1] = strconv.Itoa(prePointer)
-		r.next.preString = strings.Join(preParts[:], ".")
+
+		// if a pre string already exists
+		if len(r.v.preString) > 0 {
+			preParts := strings.Split(r.v.preString, ".")
+			prePointer, _ := strconv.Atoi(preParts[1])
+			prePointer += 1
+			preParts[1] = strconv.Itoa(prePointer)
+			preParts[0] = r.preTag
+			r.next.preString = strings.Join(preParts[:], ".")
+			return
+		}
+
+		preToCreate := []string{
+			r.preTag,
+			"0",
+		}
+
+		r.next.preString = strings.Join(preToCreate[:], ".")
 	}
 }
 
@@ -162,5 +179,11 @@ func WithPrereleaseReset() ReleaserMod {
 func WithClearPrerelease() ReleaserMod {
 	return func(r *Releaser) {
 		r.next.preString = ""
+	}
+}
+
+func WithPreTag(preTag string) ReleaserMod {
+	return func(r *Releaser) {
+		r.preTag = preTag
 	}
 }

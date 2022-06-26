@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/barelyhuman/commitlog/pkg"
 	"github.com/go-git/go-git/v5"
@@ -13,14 +14,29 @@ import (
 
 func Release(c *cli.Context) (err error) {
 
-	_, err = os.ReadFile(".commitlog.release")
+	fileDir := c.String("path")
+	filePath := path.Join(fileDir, ".commitlog.release")
+
+	if c.Bool("init") {
+		_, err = os.Stat(filePath)
+		if os.IsNotExist(err) {
+			err = nil
+			os.WriteFile(filePath, []byte("v0.0.0"), os.ModePerm)
+			fmt.Println("[commitlog] Initialized commitlog release")
+		} else {
+			err = fmt.Errorf(".commitlog.release already exists, cannot override")
+		}
+		return
+	}
+
+	_, err = os.Stat(filePath)
 
 	if os.IsNotExist(err) {
 		err = fmt.Errorf("couldn't find the release file, please run the `--init` flag first")
 		return
 	}
 
-	fileData, err := os.ReadFile(".commitlog.release")
+	fileData, err := os.ReadFile(filePath)
 
 	if err != nil {
 		err = fmt.Errorf("error reading the version file: %v", err)
@@ -29,7 +45,12 @@ func Release(c *cli.Context) (err error) {
 
 	versionString := string(fileData)
 
-	releaserOpts := []pkg.ReleaserMod{}
+	releaserOpts := []pkg.ReleaserMod{
+		// add in the pre-tag,
+		// will be used only if the pre flag
+		// is true
+		pkg.WithPreTag(c.String("pre-tag")),
+	}
 
 	if c.Bool("major") {
 		releaserOpts = append(releaserOpts, pkg.WithMajorIncrement(), pkg.WithMinorReset(), pkg.WithPatchReset())
@@ -53,30 +74,36 @@ func Release(c *cli.Context) (err error) {
 		return err
 	}
 
-	err = os.WriteFile(".commitlog.release", []byte(releaser.String()), os.ModePerm)
+	err = os.WriteFile(filePath, []byte(releaser.String()), os.ModePerm)
 	if err != nil {
 		return
 	}
 
-	openRepo, err := git.PlainOpen(c.String("path"))
-	if err != nil {
-		return err
-	}
+	var gitRepo *git.Repository
+	var toTagHash plumbing.Hash
+	var repoWt *git.Worktree
 
-	var commitHash plumbing.Hash
-	wt, err := openRepo.Worktree()
-	if err != nil {
-		return err
-	}
-
-	if c.Bool("commit") {
-		wt.Add(".commitlog.release")
-		commitHash, err = wt.Commit("chore: version"+releaser.String(), &git.CommitOptions{})
+	if c.Bool("commit") || c.Bool("push") {
+		gitRepo, err = git.PlainOpen(c.String("path"))
 		if err != nil {
 			return err
 		}
 
-		_, err = openRepo.CreateTag(releaser.String(), commitHash, &git.CreateTagOptions{})
+		repoWt, err = gitRepo.Worktree()
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if c.Bool("commit") {
+		repoWt.Add(filePath)
+		toTagHash, err = repoWt.Commit("chore: version"+releaser.String(), &git.CommitOptions{})
+		if err != nil {
+			return err
+		}
+
+		_, err = gitRepo.CreateTag(releaser.String(), toTagHash, &git.CreateTagOptions{})
 		if err != nil {
 			err = fmt.Errorf("looks like there was error while creating a tag for the version commit, please try again or create a tag manually: %v", err)
 			return err
@@ -84,12 +111,12 @@ func Release(c *cli.Context) (err error) {
 	}
 
 	if c.Bool("push") {
-		_, err := wt.Status()
+		_, err := repoWt.Status()
 		if err != nil {
 			return err
 		}
 
-		openRepo.Push(&git.PushOptions{
+		gitRepo.Push(&git.PushOptions{
 			RemoteName: "origin",
 			Progress:   os.Stdout,
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
