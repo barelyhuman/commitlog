@@ -4,6 +4,17 @@
     <body>
   <div class="layout-container">
   <section><p>@import url(&quot;https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&amp;display=swap&quot;);</p>
+<p>:root {
+--base: #fff;
+--surface: #efefef;
+--text: #333;
+--muted: #444;
+--accent: dodgerblue;
+}</p>
+<p>html,
+body {
+background: var(--base);
+}</p>
 <p>html {
 font-size: 87.5%;
 /<em>14px</em>/
@@ -11,12 +22,12 @@ font-size: 87.5%;
 <p>body {
 max-width: 100ch;
 margin: 0 auto;
-padding: 1em;</p>
-<pre><code>font-family: &quot;Fira Code&quot;, monospace;
+padding: 1em;
+color: var(--text);
+font-family: &quot;Fira Code&quot;, monospace;
 font-weight: 400;
 line-height: 1.75;
-</code></pre>
-<p>}</p>
+}</p>
 <p>h1,
 h2,
 h3,
@@ -53,20 +64,26 @@ font-size: 1rem;
 }</p>
 <p>code {
 padding: 5px;
-border: 1px solid slategray;
+border: 1px solid var(--surface);
 }</p>
 <p>pre {
+white-space: pre-wrap;
 padding: 10px;
-border: 1px solid slategray;
+border: 1px solid var(--surface);
 }</p>
 <p>pre&gt;code {
+padding: 0px;
 border: 0px;
 }</p>
 <p>a {
 color: inherit;
 }</p>
 <p>a:hover {
-color: dodgerblue;
+color: var(--accent);
+}</p>
+<p>hr {
+border: 0px;
+border-top: 1px solid var(--surface);
 }</p>
 </section></div>
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>

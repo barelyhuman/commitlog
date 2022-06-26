@@ -13,7 +13,161 @@
 <p><a href="/commitlog/manual">Manual</a><br />
 <a href="/commitlog/download">Download ↓</a></p>
 <h1>Manual</h1>
-<p>TBD</p>
+<ul>
+<li><a href="#basics">Basics</a>
+<ul>
+<li><a href="#generate">generate</a></li>
+<li><a href="#release">release</a></li>
+</ul>
+</li>
+<li><a href="#advanced">Advanced</a></li>
+<li><a href="#cli">CLI</a></li>
+</ul>
+<h3 id="basics">Basics</h3>
+<p><strong><em><code>commitlog</code></em></strong> come with 2 basic functionalities</p>
+<ul>
+<li>Generating commits as changelogs in markdown</li>
+<li>Managing your version and tags</li>
+</ul>
+<p>Both the above are available as sub commands and we'll go through each one by
+one.</p>
+<p>Just running <code>commitlog</code> no longer works as it did in v1, you'll need to specify
+a sub command to get it working.</p>
+<p>This has been done to keep it simpler to keep arbitrary behaviour to a minimum</p>
+<h4 id="generate">generate</h3>
+<p>The first one is <code>generate</code> and in most cases you'll just be using this to
+handle generation of commits as a list of markdown notes</p>
+<p>Here's an example of what it'll look like to run the <code>generate</code> sub-command</p>
+<pre><code class="language-sh">$ commitlog generate
+# or 
+$ commitlog g
+</code></pre>
+<p><strong>Output</strong>:</p>
+<pre><code class="language-md">## All Changes
+87ce3fc76b252908cdd81f9537713f8d67813652 chore: v2.0.0-beta.0
+
+09fc85c0d1d52d770bbbf39ac45907103a53d354 refactor: swap go-git for push with exec
+
+5bafe9d105298001707c7c816e60d3ef0257a816 fix: tag creation
+
+909fd032facdeb4fb7633a4fad82dced28e8de83 chore: swap debugging logger with stderr printer
+&lt;!-- .... more commits till the end of tag --&gt;
+</code></pre>
+<p>The behaviour of the <code>generate</code> command is like so</p>
+<ul>
+<li>
+<p>go through all commits from the current <code>HEAD</code> (commit with the <code>HEAD</code>
+reference) till the last commit or the most recent tagged commit.</p>
+</li>
+<li>
+<p>the other case is where if the latest commit is also a tagged commit, it'll
+still go till the most recent tagged commit.</p>
+<p>eg: v0.0.2 -&gt; HEAD, v0.0.1 -&gt; SOMEHASH, would give you the commits between
+both the tags.</p>
+</li>
+</ul>
+<p>This is the default behavior of commitlog and can be changed by passing various
+flags which you'll read about soon.</p>
+<h4 id="release">release</h3>
+<p>The <code>release</code> sub-command is a complimentary sub-command added to commitlog to
+help you with managing release versions. I understand that most languages have
+their own package version management and you might want to work with them but
+that's also why the <code>release</code> sub-command isn't something you need, it's there
+for cases where you might wanna use it.</p>
+<p>My primary usecase is when working with repositories that work with multiple
+languages and I'd prefer a unified version.</p>
+<p>The <code>release</code> command doesn't modify your source code files but instead handles
+the version with it's own file named <code>.commitlog.release</code>, which just holds the
+<strong>version</strong> number right now and while this does have the X.X.X format (semantic
+versioning format) the increments or how you handle them doesn't have to be.</p>
+<p>The command is flexible enough for you to combine and create your own way of
+versioning.</p>
+<h5>Initialize</h5>
+<pre><code class="language-sh">$ commitlog release --init
+# or 
+$ commitlog r --init
+</code></pre>
+<p>Once initialized, you'll see a <code>.commitlog.release</code> file in your repo with the
+version <code>v0.0.0</code> to start with.</p>
+<h5>Increments</h5>
+<p>Post that you can use the remaining flags to help you incrementing the version
+as needed.</p>
+<pre><code class="language-sh">$ commitlog r --major # change to v1.0.0
+$ commitlog r --minor # change to v0.1.0
+$ commitlog r --patch # change to v0.0.1
+$ commitlog r --pre # change to v0.0.0-beta.0
+$ commitlog r --pre --pre-tag=&quot;dev&quot; # change to v0.0.0-dev.0
+
+# or go bonkers 
+$ commitlog r --patch --pre --pre-tag=&quot;dev&quot; # change to v0.0.1-dev.0
+$ commitlog r --major --patch --pre --pre-tag=&quot;dev&quot; # change to v1.0.1-dev.0
+</code></pre>
+<h4>Git actions</h4>
+<p>Most times you'd also want a tool like this to create commits and tags for you
+which is fair, so <code>release</code> does come with a few git actions.</p>
+<ul>
+<li><code>--commit</code> (will create a commit and tag it for you)</li>
+<li><code>--push</code> (will push the commits and tags for you)</li>
+</ul>
+<p>The whole command would look a little something like this</p>
+<pre><code class="language-sh">$ commitlog r --patch --commit --push
+</code></pre>
+<h3 id="advanced">Advanced</h3>
+<p><strong>TBD</strong></p>
+<h3 id="cli">CLI</h3>
+<p>This is the entire CLI reference, which you can also access by using the <code>-h</code>
+flag on the downloaded binary.</p>
+<p><strong><code>commitlog -h</code></strong></p>
+<pre><code>NAME:
+   commitlog - commits to changelogs
+
+USAGE:
+   commitlog [global options] command [command options] [arguments...]
+
+COMMANDS:
+   generate, g  commits to changelogs
+   release, r   manage .commitlog.release version
+   help, h      Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h  show help (default: false)
+</code></pre>
+<hr />
+<p><strong><code>commitlog g -h</code></strong></p>
+<pre><code>NAME:
+   commitlog generate - commits to changelogs
+
+USAGE:
+   commitlog generate [command options] [arguments...]
+
+OPTIONS:
+   --categories value       categories to use, includes all commits by default. any text you add here will be used to create categories out of the commits
+   --end END, -e END        END reference for the commit to stop including commits at.This is exclusive of the given commit reference
+   --out FILE, -o FILE      path to the output FILE
+   --path PATH, -p PATH     root with the '.git' folder PATH (default: &quot;.&quot;)
+   --promo                  add promo text to the end of output (default: false)
+   --start START, -s START  START reference for the commit to include commits from,This is inclusive of the given commit reference
+   --stdio                  print to the stdout (default: true)
+</code></pre>
+<hr />
+<p><strong><code>commitlog r -h</code></strong></p>
+<pre><code>NAME:
+   commitlog release - manage .commitlog.release version
+
+USAGE:
+   commitlog release [command options] [arguments...]
+
+OPTIONS:
+   --commit              if true will create a commit and tag, of the changed version (default: false)
+   --init                initialise commitlog release (default: false)
+   --major               create a major version (default: false)
+   --minor               create a minor version (default: false)
+   --patch               create a patch version (default: false)
+   --path PATH, -p PATH  PATH to a folder where .commitlog.release exists or is to be created.(note: do not use `--commit` or `--push` if the file isn't in the root) (default: &quot;.&quot;)
+   --pre                 create a pre-release version. will default to patch increment unlessspecified and not already a pre-release (default: false)
+   --pre-tag value       create a pre-release version (default: &quot;beta&quot;)
+   --push                if true will create push the created release commit + tag on origin (default: false)
+</code></pre>
 </section></div>
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
   <script>

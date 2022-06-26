@@ -1,5 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap");
 
+
+:root {
+    --base: #fff;
+    --surface: #efefef;
+    --text: #333;
+    --muted: #444;
+    --accent: dodgerblue;
+}
+
+html,
+body {
+    background: var(--base);
+}
+
 html {
     font-size: 87.5%;
     /*14px*/
@@ -9,7 +23,7 @@ body {
     max-width: 100ch;
     margin: 0 auto;
     padding: 1em;
-
+    color: var(--text);
     font-family: "Fira Code", monospace;
     font-weight: 400;
     line-height: 1.75;
@@ -59,15 +73,17 @@ code {
 
 code {
     padding: 5px;
-    border: 1px solid slategray;
+    border: 1px solid var(--surface);
 }
 
 pre {
+    white-space: pre-wrap;
     padding: 10px;
-    border: 1px solid slategray;
+    border: 1px solid var(--surface);
 }
 
 pre>code {
+    padding: 0px;
     border: 0px;
 }
 
@@ -76,5 +92,10 @@ a {
 }
 
 a:hover {
-    color: dodgerblue;
+    color: var(--accent);
+}
+
+hr {
+    border: 0px;
+    border-top: 1px solid var(--surface);
 }
