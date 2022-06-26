@@ -17,7 +17,7 @@
 - [About](#about)
   - [Philosophy](#philosophy)
   - [Installation](#installation)
-- [Manual](#manual)
+- [Manual](/manual)
 - [License](#license)
 
 <h4 id="quick-start">Quick Start</h4>
