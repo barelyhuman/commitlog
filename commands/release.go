@@ -97,13 +97,16 @@ func Release(c *cli.Context) (err error) {
 	}
 
 	if c.Bool("commit") {
+		msg := "chore: " + releaser.String()
 		repoWt.Add(filePath)
-		toTagHash, err = repoWt.Commit("chore: version"+releaser.String(), &git.CommitOptions{})
+		toTagHash, err = repoWt.Commit(msg, &git.CommitOptions{})
 		if err != nil {
 			return err
 		}
 
-		_, err = gitRepo.CreateTag(releaser.String(), toTagHash, &git.CreateTagOptions{})
+		_, err = gitRepo.CreateTag(releaser.String(), toTagHash, &git.CreateTagOptions{
+			Message: msg,
+		})
 		if err != nil {
 			err = fmt.Errorf("looks like there was error while creating a tag for the version commit, please try again or create a tag manually: %v", err)
 			return err
