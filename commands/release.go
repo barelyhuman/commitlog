@@ -3,11 +3,12 @@ package commands
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 
+	"github.com/barelyhuman/commitlog/lib"
 	"github.com/barelyhuman/commitlog/pkg"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/urfave/cli/v2"
 )
@@ -114,16 +115,25 @@ func Release(c *cli.Context) (err error) {
 	}
 
 	if c.Bool("push") {
-		_, err := repoWt.Status()
+		_, err = repoWt.Status()
 		if err != nil {
 			return err
 		}
 
-		gitRepo.Push(&git.PushOptions{
-			RemoteName: "origin",
-			Progress:   os.Stdout,
-			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-		})
+		cmd := exec.Command("git", "push")
+		cmd.Dir = fileDir
+		err = lib.Command(cmd)
+
+		if err != nil {
+			return err
+		}
+
+		cmd = exec.Command("git", "push", "--tags")
+		cmd.Dir = fileDir
+
+		if err = lib.Command(cmd); err != nil {
+			return err
+		}
 	}
 
 	return err
