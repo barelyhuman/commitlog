@@ -6,6 +6,6 @@ install linux-amd64/mudkip /usr/local/bin
 
 ./scripts/get-release-urls.sh
 
-mudkip --baseurl='/commitlog/'
+mudkip --baseurl='/commitlog/' --stylesheet="./docs/styles.css"
 
 
