@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/barelyhuman/commitlog/commands"
@@ -88,7 +87,8 @@ func main() {
 						Name:    "path",
 						Value:   ".",
 						Aliases: []string{"p"},
-						Usage:   "root with the '.git' folder `PATH`",
+						Usage: "`PATH` to a folder where .commitlog.release exists or is to be created." +
+							"(note: do not use `--commit` or `--push` if the file isn't in the root)",
 					},
 					&cli.BoolFlag{
 						Name: "pre",
@@ -137,6 +137,6 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "[commitlog] %v", err)
 	}
 }
