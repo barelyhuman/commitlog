@@ -16,6 +16,9 @@
   - [generate](#generate)
   - [release](#release)
 - [Advanced](#advanced)
+  - [Selective Log Ranges](#selective-log-ranges)
+  - [From a different repo](#from-a-different-repo)
+  - [Categorize](#categorize)
 - [CLI](#cli)
 
 <h3 id="basics">Basics</h3>
@@ -70,8 +73,21 @@ The behaviour of the `generate` command is like so
   eg: v0.0.2 -> HEAD, v0.0.1 -> SOMEHASH, would give you the commits between
   both the tags.
 
-This is the default behavior of commitlog and can be changed by passing various
-flags which you'll read about soon.
+The default behaviour of **_commitlog_** is to print to the stdout of your
+terminal which might not be what you wish to do.
+
+So, if you wish to ever write to a file , you can use the `--out FILE` flag to
+write the output to a file instead.
+
+```sh
+$ commitlog g -o ./CHANGELOG.md
+```
+
+> **Note**: commitlog will overwrite the file with the new output, make sure you
+> create a backup of the file when working with this.
+
+> **Note**: In coming versions an append mode will be added to the CLI to avoid
+> having to deal with this manually
 
 <h4 id="release">release</h3>
 
@@ -136,7 +152,105 @@ $ commitlog r --patch --commit --push
 
 <h3 id="advanced">Advanced</h3>
 
-**TBD**
+These are not really hard to guess or achieve but are in the advanced section as
+this isn't something a beginner user might need to mess with. If you have other
+use cases that you feel like should be added here, raise a issue.
+
+<h4 id="selective-log-ranges">Selective Log Ranges</h4>
+There's enough cases where the entire history between the tags makes no sense. You might just want a specific set of commits and this is very easy to do with commitlog
+
+```sh
+$ commitlog g --start HEAD --end HEAD~3 
+# would return the last 3 commits
+```
+
+And as you might have understood, commitlog does work with git's revision system
+so you can reuse git's own revision pointers as needed. Though it's mostly
+easier to just use the HASH since, finding the hashes in `git log` is easier
+than finding the number you have to type after the `HEAD~`
+
+<h4 id="from-a-different-repo">From a different repo</h4>
+A lot more often you might need to generate logs for a sub-repo when working with a huge multirepo folder which a lot of sub-modules and switching worktree for the changelog might not be something you wish to do.
+
+In cases like these the `-p` or `--path` flag can be used with the `generate`
+flag
+
+```sh
+$ commitlog g -p ./sub/module -s HEAD~3 
+# would return the commits from HEAD~3 to the next tag or end of all commits.
+```
+
+<h4 id="categorize">Categorize</h4>
+You wouldn't be using commitlog otherwise so this obviously has to exist.
+
+As for why is this turned off by default? I just don't use commit standards and
+mostly just need the commits between tags and very rarely need the categories to
+help me but doesn't change the fact that someone else might need it.
+
+So, how does commitlog categorize? using regex's , or more like comma seperated
+regex's.
+
+The implementation approach might bring some issue but I'm going to wait for
+them instead of over fixing something that might never really happen.
+
+Anyway, a simple example for a non-scoped commitlint styled categorization would
+look something like this .
+
+```sh
+$ commitlog g --categories="feat:,fix:"
+```
+
+**Output:**
+
+```md
+## feat:
+110c9b260e6de1e2be9af28b3592c373ab6fc501 feat: handling for pre increment
+
+9080580575d3579b3d11dd114830eb128f0c8130 feat: releaser base maj,min,patch setup
+
+b513e53cbbc30e5b667fbba373b9589911a47ac0 feat: generator subcommand implementation
+
+## fix:
+5bafe9d105298001707c7c816e60d3ef0257a816 fix: tag creation
+```
+
+This could be made a little more neater using a better regex like so
+
+```sh
+$ commitlog g --categories="^feat,^fix"
+```
+
+**Output**:
+
+```md
+## ^feat
+e0ce9c693c554158b7b4841b799524164d9c3e83 feat(releaser): add init and pre-tag handlers
+
+110c9b260e6de1e2be9af28b3592c373ab6fc501 feat: handling for pre increment
+
+9080580575d3579b3d11dd114830eb128f0c8130 feat: releaser base maj,min,patch setup
+
+b513e53cbbc30e5b667fbba373b9589911a47ac0 feat: generator subcommand implementation
+
+## ^fix
+5bafe9d105298001707c7c816e60d3ef0257a816 fix: tag creation
+
+540bb3d7419aab314fdb999dd57eeac3c53f5fad fix doc generation
+
+87d40ddbd463ad71b3af8b7edb8ac8176ecbf2f5 fix tests for new param
+```
+
+As visible, you find more commits in the 2nd one since the regex matches more
+cases and gives you more information. You are free to modify these to make them
+work with other patterns that you might follow.
+
+Also the titles are going to be the regex's you pass. A future version will add
+a way for you to add label's to the regex though that's a little harder to
+achieve without making the flags very verbose so I've avoided it for now.
+
+> **Note**: This is the initial implementation of this and might change in a
+> future major version since this flag feels a little more frictional than the
+> other approaches I have in mind. Feel free to recommend other ways to do this.
 
 <h3 id="cli">CLI</h3>
 
