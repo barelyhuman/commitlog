@@ -3,26 +3,117 @@
   </head>
     <body>
   <div class="layout-container">
-  <section><p align="center">
-  <img src="https://raw.githubusercontent.com/barelyhuman/commitlog/main/assets/commitlog.png" height="64">
-<p align="center">commits to changelogs</p>
-<p><a href="https://goreportcard.com/report/github.com/barelyhuman/commitlog"><img src="https://goreportcard.com/badge/github.com/barelyhuman/commitlog" alt="Go Report Card" /></a></p>
-<h2>Philosophy</h2>
+  <section><!-- meta -->
+<title>
+    commitlog
+</title>
+<meta name="description" content="commits to changelog generator">
+<!-- meta end -->
+<h3><a href="/commitlog/">commitlog</a></h3>
+<p><a href="/commitlog/manual">Manual</a><br />
+<a href="/commitlog/download">Download ↓</a></p>
+<h4>Index</h4>
 <ul>
-<li>Work on all major operating systems</li>
-<li>Not platform dependent, not tied to Github, Gitlab, or anything. It's just markdown.</li>
-<li>Ability to generate change logs between version tags</li>
-<li>Handle release versioning of the project</li>
-<li>Stay small</li>
+<li><a href="https://github.com/barelyhuman/commitlog">Source</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#about">About</a>
+<ul>
+<li><a href="#philosophy">Philosophy</a></li>
+<li><a href="#installation">Installation</a></li>
 </ul>
-<h2>Why</h2>
-<p>Every language has it's own isolated version of a tool like this, for someone who works with multiple languages, it's easier to
-have the same tool working everywhere, without having to setup something get it working. There's an even tighter scoped version of this, <a href="https://github.com/barelyhuman/nimclog">nimclog</a>.</p>
-<p>The point of the tool is not to create super descriptive changelogs for you but to help your changelogs have enough information for you as a developer to be able to write proper changelogs while having references to the changes in one place.</p>
-<h2>Documentation</h2>
-<p>The documentation can be read from the <code>docs</code> folder of the repository, or on the <a href="https://barelyhuman.github.io/commitlog">website</a></p>
-<h2>License</h2>
-<p><a href="/commitlog/LICENSE">MIT</a></p>
+</li>
+<li><a href="#manual">Manual</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h4 id="quick-start">Quick Start</h4>
+<p>For the one's who already know the tool and wanna get started quickly.</p>
+<p>You can get the CLI in the following ways</p>
+<ol>
+<li>
+<p>You can get the binaries from the <a href="/commitlog/download">download section</a></p>
+</li>
+<li>
+<p>Using <code>go get</code></p>
+</li>
+</ol>
+<pre><code class="language-sh">go get -u github.com/barelyhuman/commitlog
+</code></pre>
+<ol start="3">
+<li>Using goblin</li>
+</ol>
+<pre><code class="language-sh">curl -sf https://goblin.barelyhuman.xyz/github.com/barelyhuman/commitlog | sh
+</code></pre>
+<p>Once installed you can just run <code>commitlog generate</code> or the shorter version
+<code>commitlog g</code> to get all the changes between the recent tags.</p>
+<h4 id="about">About</h4>
+<h5 id="philosophy">Philosophy</h5>
+<p><strong><em>commitlog</em></strong> simply exists because I wasn't able to find a decent enough tool
+to do this without being bound to a specific programming language and it's
+toolset. The closes one to this is the <code>git</code>'s own <code>shortlog</code> and <code>log</code> commands</p>
+<ul>
+<li>
+<p><strong>Language Agnostic</strong> - No one needs the entire programming toolset or the
+language to be setup on the system to be able to just generate logs</p>
+</li>
+<li>
+<p><strong>Decently Sized</strong> - Not everyone has a powerful system and CI systems are
+still very limited in terms of resources since they give you shared spaces and
+automating generating this is a common practice so it doesn't make sense for
+it to install a runtime worth 100MB to run it.</p>
+<p>The binary itself is around 10-13MB which is fairly big for a tool like this
+but this is due to go's nature of embedding the platform runtime with the
+binary and this might not be ideal for some and so there's another similar
+smaller scoped version <a href="https://github.com/barelyhuman/nimclog">nimclog</a> which
+is in KB's</p>
+</li>
+<li>
+<p><strong>Flexible</strong> - There are no set standards for how you write commit messages.
+Commitlint is a good standard and pretty widely used and also what commitlog
+v1 used as the base for categorizing.</p>
+<p>V2 however, doesn't have a set commit category standard, it accepts regex's
+that you will categorize your commits for you.</p>
+<p>This is more for experienced developers who have a their own pattern of
+writing commits and would like a tool that'd work with their pattern instead
+of creating friction</p>
+</li>
+<li>
+<p><strong>Extensible</strong> - The entire thing is open source and MIT licenses,
+specifically for you to be able to fix and add things as needed. Each command
+has been kept away from the domain logic to be able to use <code>commitlog</code> even as
+a library and build your own tool if you wish to, though if there's something
+you wish the CLI supported, you are free to open issues and I really like
+people helping with the development since that helps keeping the tool alive
+longer.</p>
+</li>
+</ul>
+<h5 id="installation">Installation</h5>
+<p>The installation is pretty straightforwad. You <a href="/commitlog/download">download</a> the binary
+from the download section of this website or use something like
+<a href="https://goblin.barelyhuman.xyz">goblin</a> to build the binary for your specific
+system (rarely needed) since the releases actually accommodate the most used
+operating systems and architectures already.</p>
+<p><strong>Linux/Mac (Unix Systems)</strong></p>
+<p>Once downloaded, you can use the <code>install</code> command on *nix systems to link the
+binary to a location that's already in your PATH variable.</p>
+<p>eg:</p>
+<pre><code class="language-bash"># install commitlog from current directory to the /usr/local/bin directory
+install $(pwd)/commitlog /usr/local/bin
+</code></pre>
+<p>This should give you the ability to use the <code>commitlog</code> command anywhere in your
+system</p>
+<p><strong>Windows</strong></p>
+<p>Similar to the linux setup, you can download the <code>.exe</code> file and add it to a
+location that your environment path already has. An easier thing to do is to
+store the entire thing in your secondary partition and add that location to your
+PATH. You can use this resource from Java docs to help you with modifying the
+PATH variables</p>
+<ul>
+<li><a href="https://www.java.com/en/download/help/path.html">Modifying PATH in Windows</a></li>
+</ul>
+<h4 id="manual">Manual</h4>
+<p><a href="/commitlog/manual">Read Manual →</a></p>
+<h4 id="license">License</h4>
+<p>commitlog is MIT Licensed and you can read the entire license in the <a href="https://github.com/barelyhuman/commitlog">source code</a></p>
 </section></div>
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
   <script>
