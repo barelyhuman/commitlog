@@ -9,6 +9,16 @@
     --accent: dodgerblue;
 }
 
+@media (prefers-color-scheme:dark) {
+    :root {
+        --base: #111;
+        --surface: #333;
+        --text: #eee;
+        --muted: #ddd;
+        --accent: dodgerblue;
+    }
+}
+
 html,
 body {
     background: var(--base);
