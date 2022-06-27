@@ -1,0 +1,75 @@
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+    <body>
+  <div class="layout-container">
+  <section><!-- meta -->
+<title>
+    commitlog | manual
+</title>
+<meta name="description" content="commits to changelog generator">
+<!-- meta end -->
+<h3><a href="/commitlog/">commitlog</a></h3>
+<p><a href="/commitlog/">Home</a> <a href="/commitlog/manual">Manual</a> <a href="/commitlog/download">Download ↓</a> <a href="/commitlog/api">API</a></p>
+<h1>API</h1>
+<h3>General Guide</h3>
+<p>commitlog also comes as a pkg that you could reuse to modify the behaviour of
+the commands and this is very limited at the moment since I'm still working on
+the best way to get plugins to work with the original CLI instead of having to
+write your own version of commitlog.</p>
+<p>The pkg contains the 2 base command's creators and behaviour modifiers, or more
+commonly known as the golang options pattern.</p>
+<p>Briefly put, You have one function that takes in unlimited amount of functions
+as parameter with each of these parameter functions being able to modify the
+behaviour of the returned instance.</p>
+<p>Easy way to explain this is with an example of the <code>releaser</code> API</p>
+<pre><code class="language-go">package main
+
+import (
+    &quot;log&quot;
+
+    &quot;github.com/barelyhuman/commitlog/pkg&quot;
+)
+
+func main() {
+    versionString := &quot;v0.0.1&quot;
+    releaser, _ := pkg.CreateNewReleaser(
+        versionString,
+        pkg.WithMajorIncrement(),
+    )
+
+    log.Println(releaser.String())
+
+}
+</code></pre>
+<p>here the <code>pkg.CreateNewReleaser</code> takes in one mandatory value which is the
+<code>versionString</code> and the 2nd parameter is optional here.</p>
+<p>Though, since we wish for the releaser to have a custom behaviour everytime the
+flags change, instead of writing entire functionalities inside various releaser
+functions, which would look like so</p>
+<pre><code class="language-go">releaser.IncrementMajor()
+releaser.IncrementMinor()
+</code></pre>
+<p>I'd be unable to expose the builders / option functions out to the public for
+them to write custom behaviours that work directly with the <code>struct</code> being used
+by commitlog itself and instead you'd be writing wrappers around existing
+functions. Thus, adding another layer of abstraction which isn't needed for
+something that wants to be extended.</p>
+<p>This approach gives me the ability to expose a selected few properties for you
+to modify while writing your own builder/option function.</p>
+<p>The only pointer functions that releaser has is the one's that'll help with
+printing or identifying the final version's state.</p>
+<p>Since, you now know how the API is written, the go doc for this module should be
+able to help you with the remaining.</p>
+<p><a href="https://pkg.go.dev/github.com/barelyhuman/commitlog">godoc↗</a></p>
+<blockquote>
+<p><strong>Note</strong>: if the go doc still hasn't been generated for v2.0.0, please go
+through the source code to help you with the implementation details</p>
+</blockquote>
+</section></div>
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+  <script>
+    hljs.highlightAll();
+  </script>
+  </body>
+  

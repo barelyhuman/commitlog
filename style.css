@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap");
 
-
 :root {
     --base: #fff;
     --surface: #efefef;
@@ -9,7 +8,7 @@
     --accent: dodgerblue;
 }
 
-@media (prefers-color-scheme:dark) {
+@media (prefers-color-scheme: dark) {
     :root {
         --base: #111;
         --surface: #333;
@@ -99,6 +98,7 @@ pre>code {
 
 a {
     color: inherit;
+    text-underline-offset: 4px;
 }
 
 a:hover {
