@@ -7,8 +7,7 @@
 
 ### [commitlog](/)
 
-[Manual](/manual)\
-[Download &darr;](/download)
+[Home](/) [Manual](/manual) [Download &darr;](/download) [API](/api)
 
 #### Index
 
@@ -123,4 +122,5 @@ PATH variables
 
 <h4 id="license">License</h4>
 
-commitlog is MIT Licensed and you can read the entire license in the [source code](https://github.com/barelyhuman/commitlog)
+commitlog is MIT Licensed and you can read the entire license in the
+[source code](https://github.com/barelyhuman/commitlog)

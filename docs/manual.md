@@ -7,8 +7,7 @@
 
 ### [commitlog](/)
 
-[Manual](/manual)\
-[Download &darr;](/download)
+[Home](/) [Manual](/manual) [Download &darr;](/download) [API](/api)
 
 # Manual
 
@@ -20,6 +19,7 @@
   - [From a different repo](#from-a-different-repo)
   - [Categorize](#categorize)
 - [CLI](#cli)
+- [API](/api)
 
 <h3 id="basics">Basics</h3>
 

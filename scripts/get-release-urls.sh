@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 curl -sL https://api.github.com/repos/barelyhuman/commitlog/releases | jq '[ .[0].assets[] | {name:.name,url:.url} ]' > api_urls.json
@@ -12,8 +13,9 @@ cat >./docs/download.md<<EOF
 
 ### [commitlog](/)
 
-[Manual](/manual)       
+[Manual](/manual)
 [Download &darr;](/download)
+[API](/api)
 
 #### Downloads
 
