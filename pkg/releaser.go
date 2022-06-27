@@ -112,7 +112,7 @@ func WithPrereleaseIncrement() ReleaserMod {
 	return func(r *Releaser) {
 
 		// if a pre string already exists
-		if len(r.v.preString) > 0 {
+		if r.HasPrerelease() {
 			preParts := strings.Split(r.v.preString, ".")
 			prePointer, _ := strconv.Atoi(preParts[1])
 			prePointer += 1
