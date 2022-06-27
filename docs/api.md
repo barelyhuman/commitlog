@@ -7,7 +7,7 @@
 
 ### [commitlog](/)
 
-[Home](/) [Manual](/manual) [Download &darr;](/download) [API](/api)
+[Home](/) [Manual](/manual) [Download](/download) [API](/api)
 
 # API
 

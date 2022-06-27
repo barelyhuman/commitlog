@@ -109,3 +109,10 @@ hr {
     border: 0px;
     border-top: 1px solid var(--surface);
 }
+
+blockquote {
+    margin: 0px;
+    padding: 0px;
+    border-left: 2px solid var(--muted);
+    padding-left: 10px;
+}

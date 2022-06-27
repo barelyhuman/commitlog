@@ -13,9 +13,7 @@ cat >./docs/download.md<<EOF
 
 ### [commitlog](/)
 
-[Manual](/manual)
-[Download &darr;](/download)
-[API](/api)
+[Home](/) [Manual](/manual) [Download](/download) [API](/api)
 
 #### Downloads
 
