@@ -81,6 +81,7 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "init",
+						Value: false,
 						Usage: "initialise commitlog release",
 					},
 					&cli.StringFlag{
@@ -91,7 +92,8 @@ func main() {
 							"(note: do not use `--commit` or `--push` if the file isn't in the root)",
 					},
 					&cli.BoolFlag{
-						Name: "pre",
+						Name:  "pre",
+						Value: false,
 						Usage: "create a pre-release version. will default to patch increment unless" +
 							"specified and not already a pre-release",
 					},
@@ -102,14 +104,17 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "major",
+						Value: false,
 						Usage: "create a major version",
 					},
 					&cli.BoolFlag{
 						Name:  "minor",
+						Value: false,
 						Usage: "create a minor version",
 					},
 					&cli.BoolFlag{
 						Name:  "patch",
+						Value: false,
 						Usage: "create a patch version",
 					},
 					&cli.BoolFlag{

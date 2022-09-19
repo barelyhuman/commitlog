@@ -172,7 +172,9 @@ func WithPrereleaseReset() ReleaserMod {
 		preParts := strings.Split(r.v.preString, ".")
 		// reset something like `beta.1` to `beta.0`
 		preParts[1] = strconv.Itoa(0)
-		r.next.preString = strings.Join(preParts[:], ".")
+		nextPreString := strings.Join(preParts[:], ".")
+		nextPreString = strings.TrimPrefix(nextPreString, "-")
+		r.next.preString = nextPreString
 	}
 }
 

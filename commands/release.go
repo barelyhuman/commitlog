@@ -18,6 +18,11 @@ func Release(c *cli.Context) (err error) {
 	fileDir := c.String("path")
 	filePath := path.Join(fileDir, ".commitlog.release")
 
+	if !(c.Bool("init") || c.Bool("major") || c.Bool("minor") || c.Bool("patch") || c.Bool("pre")) {
+		err = fmt.Errorf("[commitlog] need at least one increment flag to move ahead")
+		return
+	}
+
 	if c.Bool("init") {
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
@@ -54,15 +59,15 @@ func Release(c *cli.Context) (err error) {
 	}
 
 	if c.Bool("major") {
-		releaserOpts = append(releaserOpts, pkg.WithMajorIncrement(), pkg.WithMinorReset(), pkg.WithPatchReset())
+		releaserOpts = append(releaserOpts, pkg.WithClearPrerelease(), pkg.WithMajorIncrement(), pkg.WithMinorReset(), pkg.WithPatchReset())
 	}
 
 	if c.Bool("minor") {
-		releaserOpts = append(releaserOpts, pkg.WithMinorIncrement(), pkg.WithPatchReset())
+		releaserOpts = append(releaserOpts, pkg.WithClearPrerelease(), pkg.WithMinorIncrement(), pkg.WithPatchReset())
 	}
 
 	if c.Bool("patch") {
-		releaserOpts = append(releaserOpts, pkg.WithPatchIncrement())
+		releaserOpts = append(releaserOpts, pkg.WithClearPrerelease(), pkg.WithPatchIncrement())
 	}
 
 	if c.Bool("pre") {
