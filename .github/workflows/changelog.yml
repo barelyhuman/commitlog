@@ -16,7 +16,7 @@ jobs:
         id: generate_log
         run: |
           curl -sSL https://bina.egoist.sh/barelyhuman/commitlog | sh
-          commitlog > CHANGELOG.md
+          commitlog g > CHANGELOG.md
       - uses: ncipollo/release-action@v1
         with:
           bodyFile: "CHANGELOG.md"
