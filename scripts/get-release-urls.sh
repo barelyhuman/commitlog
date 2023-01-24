@@ -22,6 +22,6 @@ EOF
 jq -c '.[]' api_urls.json | while read i; do
     url=$(echo $i | jq '.url' --raw-output)
     name=$(echo $i | jq '.name' --raw-output)
-    bdurl=$(curl -sL $url | jq '.browser_download_url')
+    bdurl=$(curl -sL $url | jq -r '.browser_download_url')
     echo "[$name]($bdurl)    " >> ./docs/download.md
 done
