@@ -116,3 +116,35 @@ blockquote {
     border-left: 2px solid var(--muted);
     padding-left: 10px;
 }
+
+#search-container {
+  display: block;
+  margin:0 auto;
+}
+
+#search-container > input[type="text"] {
+  width: 100%;
+  background: var(--base);
+  color: var(--text);
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 2px solid var(--surface);
+}
+
+#search-container > input[type="text"]:hover {
+  border-color: var(--text);
+}
+
+#search-results {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.mudkip-search-item {
+  margin: 0.25rem;
+  display: block;
+}
