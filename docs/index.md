@@ -36,7 +36,7 @@ go get -u github.com/barelyhuman/commitlog
 3. Using goblin
 
 ```sh
-curl -sf https://goblin.barelyhuman.xyz/github.com/barelyhuman/commitlog | sh
+curl -sf https://goblin.run/github.com/barelyhuman/commitlog | sh
 ```
 
 Once installed you can just run `commitlog generate` or the shorter version
@@ -87,7 +87,7 @@ toolset. The closes one to this is the `git`'s own `shortlog` and `log` commands
 
 The installation is pretty straightforwad. You [download](/download) the binary
 from the download section of this website or use something like
-[goblin](https://goblin.barelyhuman.xyz) to build the binary for your specific
+[goblin](https://goblin.run) to build the binary for your specific
 system (rarely needed) since the releases actually accommodate the most used
 operating systems and architectures already.
 
