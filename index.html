@@ -30,12 +30,12 @@
 <p>Using <code>go get</code></p>
 </li>
 </ol>
-<pre><code class="language-sh">go get -u github.com/barelyhuman/commitlog
+<pre><code class="language-sh">go get -u github.com/barelyhuman/commitlog/v3
 </code></pre>
 <ol start="3">
 <li>Using goblin</li>
 </ol>
-<pre><code class="language-sh">curl -sf https://goblin.run/github.com/barelyhuman/commitlog | sh
+<pre><code class="language-sh">curl -sf https://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
 </code></pre>
 <p>Once installed you can just run <code>commitlog generate</code> or the shorter version
 <code>commitlog g</code> to get all the changes between the recent tags.</p>
@@ -86,11 +86,6 @@ from the download section of this website or use something like
 <a href="https://goblin.run">goblin</a> to build the binary for your specific
 system (rarely needed) since the releases actually accommodate the most used
 operating systems and architectures already.</p>
-<p><strong>Goblin</strong></p>
-<p>If using something like goblin, you'll have to request for the latest go module based version
-which can be requested like so</p>
-<pre><code class="language-sh">curl -sf http://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
-</code></pre>
 <p><strong>Linux/Mac (Unix Systems)</strong></p>
 <p>Once downloaded, you can use the <code>install</code> command on *nix systems to link the
 binary to a location that's already in your PATH variable.</p>
