@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/barelyhuman/commitlog/commands"
+	"github.com/barelyhuman/commitlog/v2/commands"
 	"github.com/urfave/cli/v2"
 )
 

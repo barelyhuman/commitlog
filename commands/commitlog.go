@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/barelyhuman/commitlog/pkg"
+	"github.com/barelyhuman/commitlog/v2/pkg"
 	"github.com/urfave/cli/v2"
 )
 

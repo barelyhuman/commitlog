@@ -1,4 +1,4 @@
-module github.com/barelyhuman/commitlog
+module github.com/barelyhuman/commitlog/v2
 
 go 1.16
 

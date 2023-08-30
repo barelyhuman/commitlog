@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"path"
 
-	"github.com/barelyhuman/commitlog/lib"
-	"github.com/barelyhuman/commitlog/pkg"
+	"github.com/barelyhuman/commitlog/v2/lib"
+	"github.com/barelyhuman/commitlog/v2/pkg"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/urfave/cli/v2"
