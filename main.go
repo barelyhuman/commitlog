@@ -4,18 +4,20 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/barelyhuman/commitlog/commands"
 	"github.com/urfave/cli/v2"
 )
 
-// go:embed .commitlog.release
+//go:embed .commitlog.release
 var version string
 
 func main() {
 	app := &cli.App{
-		Name:  "commitlog",
-		Usage: "commits to changelogs",
+		Name:            "commitlog",
+		Usage:           "commits to changelogs",
+		CommandNotFound: cli.ShowCommandCompletions,
 		Action: func(c *cli.Context) error {
 			fmt.Println(
 				"[commitlog] we no longer support direct invocation, please use the subcommand `generate` to generate a log or `release` to manage your .commitlog.release",
@@ -23,6 +25,9 @@ func main() {
 
 			return nil
 		},
+		Version:     version,
+		Compiled:    time.Now(),
+		HideVersion: false,
 		Commands: []*cli.Command{
 			{
 				Name:    "generate",
@@ -131,14 +136,6 @@ func main() {
 			},
 		},
 	}
-
-	cli.VersionFlag = &cli.BoolFlag{
-		Name:    "version",
-		Aliases: []string{"v"},
-		Usage:   "print only the version",
-	}
-
-	app.Version = version
 
 	err := app.Run(os.Args)
 	if err != nil {
