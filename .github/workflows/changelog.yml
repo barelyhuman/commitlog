@@ -15,7 +15,7 @@ jobs:
       - name: Generate Change Log
         id: generate_log
         run: |
-          curl -sSL https://goblin.run/github.com/barelyhuman/commitlog | sh
+          curl -sSL https://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
           commitlog g > CHANGELOG.md
       - uses: ncipollo/release-action@v1
         with:
