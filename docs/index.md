@@ -30,13 +30,13 @@ You can get the CLI in the following ways
 2. Using `go get`
 
 ```sh
-go get -u github.com/barelyhuman/commitlog
+go get -u github.com/barelyhuman/commitlog/v3
 ```
 
 3. Using goblin
 
 ```sh
-curl -sf https://goblin.run/github.com/barelyhuman/commitlog | sh
+curl -sf https://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
 ```
 
 Once installed you can just run `commitlog generate` or the shorter version
@@ -90,15 +90,6 @@ from the download section of this website or use something like
 [goblin](https://goblin.run) to build the binary for your specific
 system (rarely needed) since the releases actually accommodate the most used
 operating systems and architectures already.
-
-**Goblin**
-
-If using something like goblin, you'll have to request for the latest go module based version
-which can be requested like so
-
-```sh
-curl -sf http://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
-```
 
 **Linux/Mac (Unix Systems)**
 
