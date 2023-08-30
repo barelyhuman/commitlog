@@ -91,9 +91,18 @@ from the download section of this website or use something like
 system (rarely needed) since the releases actually accommodate the most used
 operating systems and architectures already.
 
+**Goblin**
+
+If using something like goblin, you'll have to request for the latest go module based version
+which can be requested like so
+
+```sh
+curl -sf http://goblin.run/github.com/barelyhuman/commitlog/v3@v3 | sh
+```
+
 **Linux/Mac (Unix Systems)**
 
-Once downloaded, you can use the `install` command on *nix systems to link the
+Once downloaded, you can use the `install` command on \*nix systems to link the
 binary to a location that's already in your PATH variable.
 
 eg:
