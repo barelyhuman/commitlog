@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/barelyhuman/commitlog/v2/lib"
+	"github.com/barelyhuman/commitlog/v3/lib"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )

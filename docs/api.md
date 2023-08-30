@@ -33,7 +33,7 @@ package main
 import (
 	"log"
 
-	"github.com/barelyhuman/commitlog/v2/pkg"
+	"github.com/barelyhuman/commitlog/v3/pkg"
 )
 
 func main() {
