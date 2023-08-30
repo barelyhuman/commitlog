@@ -88,6 +88,11 @@ func (g *Generator) readCommitsInTags() (err error) {
 		}
 	}
 
+	if latestTagCommit == nil && previousTagCommit == nil {
+		err = fmt.Errorf("failed to get tags, check if you have at least one tag or provide commit references instead")
+		return
+	}
+
 	commitsIter, err = g.repo.Log(&git.LogOptions{From: latestTagCommit.Hash})
 
 	if err != nil {
